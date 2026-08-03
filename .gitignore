@@ -1,0 +1,21 @@
+# Delivery drop for GraphDB / Dropbox. Derived from the canonical TTLs; never
+# read back as input, so never tracked.
+export/
+
+# Python
+__pycache__/
+*.pyc
+
+# Mid-session working artifacts. reading_notes.json is the documented scratchpad
+# for documents over 20,000 words (SKILL.md §Document Size Assessment) and must
+# not reach a commit.
+reading_notes.json
+*.tmp
+
+# Claude Code per-user overrides. settings.json IS tracked; the .local variant
+# is machine-specific and is not.
+.claude/settings.local.json
+
+# sources/ is deliberately NOT ignored. Which rendition of a policy was read is
+# load-bearing provenance (SKILL.md §Pre-Extraction, the S137 NCD 20.8.1
+# precedent), so the source PDFs are committed alongside the extraction.

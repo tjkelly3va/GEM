@@ -1,0 +1,232 @@
+# ============================================================================
+#
+#   GEM Code Group Instances
+#
+# ============================================================================
+#  This file holds gem:CodeGroup instances -- named, reusable sets of billing
+#  codes (HCPCS Level II, CPT Level I, ICD-10-CM) that generalize a collection
+#  of codes under a single queryable term, so a query can name the group
+#  instead of enumerating individual code strings. Membership is enumerated via
+#  skos:narrower (curated core) and/or, for prefix-defined groups, via
+#  gem:memberCodePattern (planned). A group MAY identify gem:ClinicalConcept
+#  individuals (gem:identifiesClinicalConcept) and carries a responsible party
+#  (gem:codeGroupOwner; CMS-policy-derived groups carry "CMS").
+#
+#  This is an INSTANCES file. Schema terms (classes, properties) live in
+#  GEM_ontology.ttl and are NOT redefined here. Instance URIs use the gemi:
+#  namespace; schema terms use gem:. Code-member IRIs reference the external
+#  HCPCS (hcpcs:), CPT (cpt:), and ICD-10-CM (icd10:) code namespaces; those
+#  codes are typed by the conversion queries, not in this file.
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# NAMESPACE DECLARATIONS
+# ----------------------------------------------------------------------------
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix dc:    <http://purl.org/dc/elements/1.1/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix hcpcs: <http://purl.bioontology.org/ontology/HCPCS/> .
+@prefix icd10: <http://purl.bioontology.org/ontology/ICD10CM/> .
+@prefix cpt:   <https://www.ama-assn.org/cpt#> .
+
+@prefix gem:   <http://www.cms.hhs.gov/ontology/2026/08/GEM/> .
+@prefix gemi:  <http://www.cms.hhs.gov/ontology/2026/08/GEM/instances/> .
+
+# ----------------------------------------------------------------------------
+# CODE GROUP INDIVIDUALS
+# ----------------------------------------------------------------------------
+
+gemi:codeGroupRAD a gem:CodeGroup ;
+    gem:prefLabel "Respiratory Assist Devices (RADs)" ;
+    gem:description "Respiratory Assist Devices (RADs): the category of bi-level positive airway pressure devices used for noninvasive ventilation in the home (HCPCS E0470-E0472), as discussed in NCD 240.9." ;
+    gem:workflowDescription "Respiratory Assist Devices (RADs) -- the category of durable medical equipment comprising bi-level positive airway pressure devices used for noninvasive ventilation in the home, as discussed in NCD 240.9. Curated-core membership is the HCPCS Level II code range E0470-E0472 (E0470 without backup rate; E0471 with backup rate; E0472 with backup rate for use with an invasive interface). Membership is an SME assertion; the NCD describes the device category in prose rather than enumerating these codes verbatim." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:identifiesClinicalConcept gemi:conceptRespiratoryAssistDevice ;
+    skos:narrower hcpcs:E0470 ,
+                  hcpcs:E0471 ,
+                  hcpcs:E0472 ;
+    gem:memberOfOntology gem:gemOntology ;
+    dc:source gemi:ncd240.9 .
+
+gemi:codeGroupOxygenDelivery a gem:CodeGroup ;
+    gem:prefLabel "Oxygen Delivery Systems and Related Supplies" ;
+    gem:description "Oxygen Delivery Systems and Related Supplies: the category of stationary and portable oxygen delivery systems (gaseous and liquid) and their oxygen contents, as governed by NCD 240.2." ;
+    gem:workflowDescription "Oxygen Delivery Systems and Related Supplies -- the category of durable medical equipment and supplies comprising stationary and portable oxygen delivery systems (gaseous and liquid) together with their oxygen contents, as governed by NCD 240.2 (Home Use of Oxygen). Curated-core membership is the valid HCPCS Level II codes within the range E0424-E0444: E0424, E0425, E0430, E0431, E0433, E0434, E0435, E0439, E0440, E0441, E0442, E0443, E0444 (13 codes). The eight integer values within the range that are not assigned HCPCS codes (E0426, E0427, E0428, E0429, E0432, E0436, E0437, E0438) are intentionally excluded; no phantom codes are minted. Membership is an SME assertion, supplied by the project lead as a code range rather than enumerated verbatim in a single policy document." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:identifiesClinicalConcept gemi:conceptOxygenEquipment ;
+    skos:narrower hcpcs:E0424 ,
+                  hcpcs:E0425 ,
+                  hcpcs:E0430 ,
+                  hcpcs:E0431 ,
+                  hcpcs:E0433 ,
+                  hcpcs:E0434 ,
+                  hcpcs:E0435 ,
+                  hcpcs:E0439 ,
+                  hcpcs:E0440 ,
+                  hcpcs:E0441 ,
+                  hcpcs:E0442 ,
+                  hcpcs:E0443 ,
+                  hcpcs:E0444 ;
+    gem:memberOfOntology gem:gemOntology ;
+    dc:source gemi:ncd240.2 .
+
+gemi:codeGroupHCPCSAcodes a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II A Codes -- Transportation, Supplies, Administrative" ;
+    gem:description "HCPCS Level II A Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Ambulance services, medical and surgical supplies, skin substitutes, and administrative items." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'A' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/A\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSenteralParenteral a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II B Codes -- Enteral & Parenteral Therapy" ;
+    gem:description "HCPCS Level II B Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Enteral and parenteral therapy (nutrition)." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'B' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/B\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSopps a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II C Codes -- OPPS Temporary" ;
+    gem:description "HCPCS Level II C Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Temporary hospital outpatient prospective payment system (OPPS) codes for devices, drugs, and biologicals." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'C' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/C\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSdme a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II E Codes -- Durable Medical Equipment" ;
+    gem:description "HCPCS Level II E Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Durable Medical Equipment (DME) such as canes, crutches, walkers, and wheelchairs." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'E' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/E\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSprofessional a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II G Codes -- Professional Procedures/Services" ;
+    gem:description "HCPCS Level II G Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Professional procedures and services." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'G' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/G\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSbehavioralHealth a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II H Codes -- Behavioral Health & Substance-Abuse Treatment" ;
+    gem:description "HCPCS Level II H Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Behavioral and mental health and drug-abuse treatment services." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'H' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/H\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSdrugs a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II J Codes -- Drugs (Non-Oral) & Chemotherapy" ;
+    gem:description "HCPCS Level II J Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Non-oral administered drugs and chemotherapy medications." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'J' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/J\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSdmeMAC a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II K Codes -- Temporary DME (DME MAC)" ;
+    gem:description "HCPCS Level II K Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Temporary DME codes managed by Durable Medical Equipment Medicare Administrative Contractors (DME MACs)." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'K' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/K\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSorthoticProsthetic a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II L Codes -- Orthotic & Prosthetic" ;
+    gem:description "HCPCS Level II L Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Orthotic and prosthetic procedures and devices." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'L' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/L\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSotherMedical a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II M Codes -- Other Medical Services" ;
+    gem:description "HCPCS Level II M Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Other medical services." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'M' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/M\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSpathologyLab a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II P Codes -- Pathology & Laboratory" ;
+    gem:description "HCPCS Level II P Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Pathology and laboratory tests." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'P' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/P\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSQcodes a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II Q Codes -- Temporary National (Claims Processing)" ;
+    gem:description "HCPCS Level II Q Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Temporary national codes for specific claims processing needs (the Q-prefix subset)." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'Q' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/Q\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSradiology a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II R Codes -- Diagnostic Radiology" ;
+    gem:description "HCPCS Level II R Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Diagnostic radiology services." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'R' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/R\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSScodes a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II S Codes -- Temporary National (Claims Processing)" ;
+    gem:description "HCPCS Level II S Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Temporary national codes for specific claims processing needs (the S-prefix subset)." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'S' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/S\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSstateMedicaid a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II T Codes -- State Medicaid Agency" ;
+    gem:description "HCPCS Level II T Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: State Medicaid agency codes." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'T' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/T\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSdiagnosticPanels a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II U Codes -- Temporary Diagnostic Panels" ;
+    gem:description "HCPCS Level II U Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Temporary codes used for specific diagnostic panels (for example, coronavirus testing)." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'U' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/U\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupHCPCSvisionHearing a gem:CodeGroup ;
+    gem:prefLabel "HCPCS Level II V Codes -- Vision & Hearing" ;
+    gem:description "HCPCS Level II V Codes -- the structural letter category of the HCPCS Level II code system. Per the project category list: Vision and hearing services." ;
+    gem:workflowDescription "Membership is pattern-defined via gem:memberCodePattern -- all HCPCS Level II procedure/item codes with the 'V' prefix (the letter followed by four digits) -- rather than an enumerated skos:narrower curated core, so the group stays a few triples instead of enumerating the full category. This is a structural division of the HCPCS code system itself, not a coverage-policy-derived group: owner CMS, no dc:source, and it identifies no single clinical concept. Introduced 2026-06-30 (Session 104)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/V\\d{4}$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupDiabetes a gem:CodeGroup ;
+    gem:prefLabel "Diabetes" ;
+    skos:altLabel "Type 2 diabetes mellitus" ;
+    gem:description "Diabetes: a grouping of the ICD-10-CM diagnosis codes for type 2 diabetes mellitus, comprising the E11 category and all its subcodes." ;
+    gem:workflowDescription "Diabetes -- an analyst-defined grouping of the ICD-10-CM diagnosis codes for type 2 diabetes mellitus. Membership is pattern-defined via gem:memberCodePattern: all ICD-10-CM codes in category E11 (the E11 category header and every E11.x subcode). Named colloquially -- in common use diabetes refers to type 2 diabetes mellitus (ICD-10-CM E11); type 1 diabetes (E10) and other or secondary forms (E08, E09, E13) are not members. This is the project first ICD-10-CM code group and first non-HCPCS pattern group; being an ICD-10 group it contributes no materialized gem:refersToCodeGroup links (the codegroup_link_drift guard is HCPCS-only). Owner CMS; no dc:source (a grouping over the ICD-10-CM code system, not derived from a single coverage policy). Introduced 2026-07-01 (Session 108)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:identifiesClinicalConcept gemi:conceptTypeIIDiabetes ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/ICD10CM/E11(\\.[A-Za-z0-9]{1,4})?$" ;
+    gem:memberOfOntology gem:gemOntology .
+
+gemi:codeGroupOxygenEquipment a gem:CodeGroup ;
+    gem:prefLabel "Oxygen Equipment" ;
+    gem:description "Oxygen Equipment: a grouping of HCPCS Level II codes in the ranges E0400-E0493 and E1300-E1499." ;
+    gem:workflowDescription "Oxygen Equipment -- an analyst-defined grouping of HCPCS Level II codes in the author-specified ranges E0400-E0493 and E1300-E1499. Membership is pattern-defined via two gem:memberCodePattern regexes, one per range, matched against HCPCS code IRIs; as of HCPCS 2025aa the ranges resolve to 57 currently-assigned codes (40 in E0400-E0493, 17 in E1300-E1499). The ranges are the author specification and span oxygen delivery systems and contents (E0424-E0447), oxygen accessories and concentrators (E1352-E1358, E1390-E1392, E1405-E1406), together with other respiratory and durable medical equipment falling within the ranges -- for example home ventilators (E0465-E0469), respiratory assist devices (E0470-E0472), respiratory and airway-clearance devices (E0480-E0487), neuromuscular airway devices (E0490-E0493), the immersion heater for nebulizer (E1372), whirlpool and hydrotherapy equipment (E1300-E1310), and the miscellaneous-DME code E1399. Membership is therefore by range, not a narrow oxygen-delivery-only assertion. Overlaps other groups by design: codeGroupOxygenDelivery (E0424-E0444) and codeGroupRAD (E0470-E0472) are subsets. First range-defined (non-simple-prefix) pattern group. Owner CMS; no dc:source (not derived from a single coverage policy). Introduced 2026-07-01 (Session 108)." ;
+    gem:codeGroupOwner "CMS" ;
+    gem:identifiesClinicalConcept gemi:conceptOxygenEquipment ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/E04(0\\d|[1-8]\\d|9[0-3])$" ;
+    gem:memberCodePattern "^http://purl\\.bioontology\\.org/ontology/HCPCS/E1[34]\\d{2}$" ;
+    gem:memberOfOntology gem:gemOntology .

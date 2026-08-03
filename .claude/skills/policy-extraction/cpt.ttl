@@ -1,0 +1,939 @@
+################################################################################
+# cpt.ttl — CPT Code Test Fixture
+# Namespace : https://www.ama-assn.org/cpt#
+# Format    : Turtle / SKOS
+# Purpose   : GEM test fixture; seed codes drawn from NCS/EMG policy family
+#             (A54969) and E/M office visit codes for category breadth.
+#
+# PROVISIONAL SCHEMA NOTE: This schema was designed for a small fixture dataset.
+# The class hierarchy (cpt:CPTCode, cpt:CPTHeading), predicate set, and heading
+# structure may need revision once a full AMA CPT dataset is available.
+#
+# Predicate mapping (UMLS CPT source representation → cpt: namespace):
+#   CPT_Code (type 104)                    → cpt:code             (xsd:string)
+#   Descriptor / long (type 106)           → cpt:longDescriptor   (xsd:string)
+#   Medium_Descriptor / 48-char (type 110) → cpt:mediumDescriptor (xsd:string)
+#   Short_Descriptor / 28-char (type 111)  → cpt:shortDescriptor  (xsd:string)
+#   First_Appearance (type 101)            → cpt:firstAppearance  (xsd:gYear)
+#   Last_Revised (type 120)                → cpt:lastRevised      (xsd:gYear)
+#   Addon_Code (type 102)                  → cpt:addonCode        (xsd:boolean)
+#   Reportable (type 103)                  → cpt:reportable       (xsd:boolean)
+#   CPT_Level (type 109)                   → cpt:level            (xsd:string)
+#   Moderate_Conscious_Sedation (type 105) → cpt:moderateConsciousSedation (xsd:boolean)
+#
+# Hierarchy: skos:broader links cpt:CPTCode individuals to cpt:CPTHeading
+#   individuals (the query-writer direction: query writers know the CPT code
+#   and ask for its heading). skos:narrower is the owl:inverseOf and is left
+#   to the reasoner rather than asserted here. Three headings cover the seed
+#   code families: NerveCondStudiesHeading, NeedleEMGHeading, EandMHeading.
+#
+# Retained SKOS/OWL predicates: skos:inScheme, skos:broader,
+#   skos:Concept (by subclass inference), owl:Ontology on header.
+#
+# Sources: AMA CPT / UMLS Metathesaurus; CMS Medicare Coverage Database
+#   (A54969, A56619, A57478); AANEM NCS/EMG coding guidance.
+################################################################################
+
+@prefix cpt:    <https://www.ama-assn.org/cpt#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+
+################################################################################
+# Ontology header
+################################################################################
+
+<https://www.ama-assn.org/cpt>
+    a owl:Ontology ;
+    rdfs:label "CPT Code Test Fixture"@en ;
+    rdfs:comment "Small SKOS-based fixture of CPT codes for GEM triplestore testing. Seed codes are drawn from the NCS/EMG policy family (A54969) and E/M office visit category. Schema is provisional pending availability of a full AMA CPT dataset."@en .
+
+################################################################################
+# Class definitions
+################################################################################
+
+cpt:CPTCode
+    a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "CPT Code"@en ;
+    rdfs:comment "A billable AMA Current Procedural Terminology code, including add-on codes. Subclass of skos:Concept."@en .
+
+cpt:CPTHeading
+    a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "CPT Heading"@en ;
+    rdfs:comment "A structural heading or subheading in the AMA CPT codebook hierarchy. Not directly billable. Subclass of skos:Concept."@en .
+
+################################################################################
+# Property definitions
+################################################################################
+
+cpt:code
+    a owl:DatatypeProperty ;
+    rdfs:label "CPT code"@en ;
+    rdfs:comment "The 5-character AMA CPT code string. Corresponds to UMLS CPT Property Type 104 (CPT_Code)."@en ;
+    rdfs:domain cpt:CPTCode ;
+    rdfs:range xsd:string .
+
+cpt:longDescriptor
+    a owl:DatatypeProperty ;
+    rdfs:label "long descriptor"@en ;
+    rdfs:comment "Full description of the CPT concept as listed in the CPT codebook. Corresponds to UMLS CPT Property Type 106 (Descriptor), TTY=PT."@en ;
+    rdfs:range xsd:string .
+
+cpt:mediumDescriptor
+    a owl:DatatypeProperty ;
+    rdfs:label "medium descriptor"@en ;
+    rdfs:comment "Descriptor limited to 48 characters. Corresponds to UMLS CPT Property Type 110 (Medium_Descriptor)."@en ;
+    rdfs:range xsd:string .
+
+cpt:shortDescriptor
+    a owl:DatatypeProperty ;
+    rdfs:label "short descriptor"@en ;
+    rdfs:comment "Descriptor limited to 28 characters. Corresponds to UMLS CPT Property Type 111 (Short_Descriptor)."@en ;
+    rdfs:range xsd:string .
+
+cpt:firstAppearance
+    a owl:DatatypeProperty ;
+    rdfs:label "first appearance"@en ;
+    rdfs:comment "The year the CPT code was first introduced. Corresponds to UMLS CPT Property Type 101 (First_Appearance)."@en ;
+    rdfs:range xsd:gYear .
+
+cpt:lastRevised
+    a owl:DatatypeProperty ;
+    rdfs:label "last revised"@en ;
+    rdfs:comment "The year the CPT code was last revised. Corresponds to UMLS CPT Property Type 120 (Last_Revised)."@en ;
+    rdfs:range xsd:gYear .
+
+cpt:addonCode
+    a owl:DatatypeProperty ;
+    rdfs:label "add-on code"@en ;
+    rdfs:comment "True if this CPT code is an add-on code that must be reported with a primary procedure code. Corresponds to UMLS CPT Property Type 102 (Addon_Code)."@en ;
+    rdfs:domain cpt:CPTCode ;
+    rdfs:range xsd:boolean .
+
+cpt:reportable
+    a owl:DatatypeProperty ;
+    rdfs:label "reportable"@en ;
+    rdfs:comment "True if this CPT code is reportable (billable); false for headings and subheadings. Corresponds to UMLS CPT Property Type 103 (Reportable)."@en ;
+    rdfs:range xsd:boolean .
+
+cpt:level
+    a owl:DatatypeProperty ;
+    rdfs:label "CPT level"@en ;
+    rdfs:comment "Hierarchical level indicator from AMA CPT DTK: PC (parent code), CC (child/add-on code), H1-H6 (heading levels 1-6), HS (small-family heading). Corresponds to UMLS CPT Property Type 109 (Level)."@en ;
+    rdfs:range xsd:string .
+
+cpt:moderateConsciousSedation
+    a owl:DatatypeProperty ;
+    rdfs:label "moderate conscious sedation"@en ;
+    rdfs:comment "True if this CPT code is marked with the moderate (conscious) sedation symbol in the AMA CPT codebook. Corresponds to UMLS CPT Property Type 105 (Moderate_Conscious_Sedation)."@en ;
+    rdfs:domain cpt:CPTCode ;
+    rdfs:range xsd:boolean .
+
+cpt:provisional
+    a owl:DatatypeProperty ;
+    rdfs:label "provisional"@en ;
+    rdfs:comment "True for codes added provisionally to this fixture: the code itself is recorded but the AMA descriptor is omitted (copyrighted) pending the CMS-managed CPT file. Distinguishes bulk-added provisional codes from the hand-curated seed codes. GEM-side; not a UMLS CPT property."@en ;
+    rdfs:domain cpt:CPTCode ;
+    rdfs:range xsd:boolean .
+
+################################################################################
+# Concept Scheme
+################################################################################
+
+cpt:CPTConceptScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Current Procedural Terminology (CPT)"@en ;
+    rdfs:comment "AMA Current Procedural Terminology code set, represented as a SKOS concept scheme for GEM testing."@en .
+
+################################################################################
+# Heading nodes
+################################################################################
+
+cpt:NerveCondStudiesHeading
+    a cpt:CPTHeading ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:longDescriptor "Nerve Conduction Studies"@en ;
+    cpt:mediumDescriptor "Nerve Conduction Studies"@en ;
+    cpt:shortDescriptor "Nerve Conduction Studies"@en ;
+    cpt:reportable "false"^^xsd:boolean ;
+    cpt:level "H2" .
+
+cpt:NeedleEMGHeading
+    a cpt:CPTHeading ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:longDescriptor "Needle Electromyography"@en ;
+    cpt:mediumDescriptor "Needle Electromyography"@en ;
+    cpt:shortDescriptor "Needle EMG"@en ;
+    cpt:reportable "false"^^xsd:boolean ;
+    cpt:level "H2" .
+
+cpt:EandMHeading
+    a cpt:CPTHeading ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:longDescriptor "Evaluation and Management - Office or Other Outpatient Services"@en ;
+    cpt:mediumDescriptor "E/M Office or Outpatient Services"@en ;
+    cpt:shortDescriptor "E/M Office/Outpatient"@en ;
+    cpt:reportable "false"^^xsd:boolean ;
+    cpt:level "H2" .
+
+################################################################################
+# NCS codes (95907-95913) — Nerve Conduction Studies
+# Source: CMS A54969, A56619, A57478; AANEM NCS/EMG coding guidance
+# Note: 95913 is an add-on to 95912
+################################################################################
+
+cpt:95907
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NerveCondStudiesHeading ;
+    cpt:code "95907" ;
+    cpt:longDescriptor "Nerve conduction studies; 1-2 studies"@en ;
+    cpt:mediumDescriptor "Nerve conduction studies; 1-2 studies"@en ;
+    cpt:shortDescriptor "Nerve cond studies; 1-2"@en ;
+    cpt:firstAppearance "2013"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:95908
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NerveCondStudiesHeading ;
+    cpt:code "95908" ;
+    cpt:longDescriptor "Nerve conduction studies; 3-4 studies"@en ;
+    cpt:mediumDescriptor "Nerve conduction studies; 3-4 studies"@en ;
+    cpt:shortDescriptor "Nerve cond studies; 3-4"@en ;
+    cpt:firstAppearance "2013"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:95909
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NerveCondStudiesHeading ;
+    cpt:code "95909" ;
+    cpt:longDescriptor "Nerve conduction studies; 5-6 studies"@en ;
+    cpt:mediumDescriptor "Nerve conduction studies; 5-6 studies"@en ;
+    cpt:shortDescriptor "Nerve cond studies; 5-6"@en ;
+    cpt:firstAppearance "2013"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:95910
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NerveCondStudiesHeading ;
+    cpt:code "95910" ;
+    cpt:longDescriptor "Nerve conduction studies; 7-8 studies"@en ;
+    cpt:mediumDescriptor "Nerve conduction studies; 7-8 studies"@en ;
+    cpt:shortDescriptor "Nerve cond studies; 7-8"@en ;
+    cpt:firstAppearance "2013"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:95911
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NerveCondStudiesHeading ;
+    cpt:code "95911" ;
+    cpt:longDescriptor "Nerve conduction studies; 9-10 studies"@en ;
+    cpt:mediumDescriptor "Nerve conduction studies; 9-10 studies"@en ;
+    cpt:shortDescriptor "Nerve cond studies; 9-10"@en ;
+    cpt:firstAppearance "2013"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:95912
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NerveCondStudiesHeading ;
+    cpt:code "95912" ;
+    cpt:longDescriptor "Nerve conduction studies; 11-12 studies"@en ;
+    cpt:mediumDescriptor "Nerve conduction studies; 11-12 studies"@en ;
+    cpt:shortDescriptor "Nerve cond studies; 11-12"@en ;
+    cpt:firstAppearance "2013"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:95913
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NerveCondStudiesHeading ;
+    cpt:code "95913" ;
+    cpt:longDescriptor "Nerve conduction studies; 13 or more studies (list separately in addition to code for primary procedure)"@en ;
+    cpt:mediumDescriptor "Nerve conduction studies; 13 or more"@en ;
+    cpt:shortDescriptor "Nerve cond studies; 13+"@en ;
+    cpt:firstAppearance "2013"^^xsd:gYear ;
+    cpt:addonCode "true"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "CC" .
+
+################################################################################
+# Needle EMG — standalone (no same-day NCS)
+# Use 95860-95864 when NCS is NOT performed on the same date of service
+################################################################################
+
+cpt:95860
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NeedleEMGHeading ;
+    cpt:code "95860" ;
+    cpt:longDescriptor "Needle electromyography; 1 extremity with or without related paraspinal areas"@en ;
+    cpt:mediumDescriptor "Needle EMG; 1 extremity w/wo paraspinal"@en ;
+    cpt:shortDescriptor "Needle EMG; 1 extremity"@en ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:95861
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NeedleEMGHeading ;
+    cpt:code "95861" ;
+    cpt:longDescriptor "Needle electromyography; 2 extremities with or without related paraspinal areas"@en ;
+    cpt:mediumDescriptor "Needle EMG; 2 extremities w/wo paraspinal"@en ;
+    cpt:shortDescriptor "Needle EMG; 2 extremities"@en ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:95863
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NeedleEMGHeading ;
+    cpt:code "95863" ;
+    cpt:longDescriptor "Needle electromyography; 3 extremities with or without related paraspinal areas"@en ;
+    cpt:mediumDescriptor "Needle EMG; 3 extremities w/wo paraspinal"@en ;
+    cpt:shortDescriptor "Needle EMG; 3 extremities"@en ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:95864
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NeedleEMGHeading ;
+    cpt:code "95864" ;
+    cpt:longDescriptor "Needle electromyography; 4 extremities with or without related paraspinal areas"@en ;
+    cpt:mediumDescriptor "Needle EMG; 4 extremities w/wo paraspinal"@en ;
+    cpt:shortDescriptor "Needle EMG; 4 extremities"@en ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+################################################################################
+# Needle EMG — add-on codes (same-day NCS required)
+# 95885, 95886, 95887 require a primary NCS code (95907-95913)
+################################################################################
+
+cpt:95885
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NeedleEMGHeading ;
+    cpt:code "95885" ;
+    cpt:longDescriptor "Needle electromyography, each extremity, with related paraspinal areas, when performed, done with nerve conduction, amplitude and latency/velocity study; limited (list separately in addition to code for primary procedure)"@en ;
+    cpt:mediumDescriptor "Needle EMG each extremity with NCS; limited"@en ;
+    cpt:shortDescriptor "Needle EMG w/NCS; limited"@en ;
+    cpt:firstAppearance "2012"^^xsd:gYear ;
+    cpt:addonCode "true"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "CC" .
+
+cpt:95886
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NeedleEMGHeading ;
+    cpt:code "95886" ;
+    cpt:longDescriptor "Needle electromyography, each extremity, with related paraspinal areas, when performed, done with nerve conduction, amplitude and latency/velocity study; complete, five or more muscles studied, innervated by three or more nerves or four or more spinal levels (list separately in addition to code for primary procedure)"@en ;
+    cpt:mediumDescriptor "Needle EMG each extremity with NCS; complete"@en ;
+    cpt:shortDescriptor "Needle EMG w/NCS; complete"@en ;
+    cpt:firstAppearance "2012"^^xsd:gYear ;
+    cpt:addonCode "true"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "CC" .
+
+cpt:95887
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:NeedleEMGHeading ;
+    cpt:code "95887" ;
+    cpt:longDescriptor "Needle electromyography, non-extremity (cranial nerve supplied or axial) muscles done with nerve conduction, amplitude and latency/velocity study (list separately in addition to code for primary procedure)"@en ;
+    cpt:mediumDescriptor "Needle EMG non-extremity muscles with NCS"@en ;
+    cpt:shortDescriptor "Needle EMG non-extremity w/NCS"@en ;
+    cpt:firstAppearance "2012"^^xsd:gYear ;
+    cpt:addonCode "true"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "CC" .
+
+################################################################################
+# E/M Office Visit codes — new patients (99202, 99204)
+#                          established patients (99213, 99215)
+# Source: AMA CPT E/M descriptors 2021+; IDSA E/M reference guide 2025
+################################################################################
+
+cpt:99202
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:EandMHeading ;
+    cpt:code "99202" ;
+    cpt:longDescriptor "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and straightforward medical decision making"@en ;
+    cpt:mediumDescriptor "Office/outpatient visit, new pt, straightforward"@en ;
+    cpt:shortDescriptor "Office visit, new, straightforward"@en ;
+    cpt:firstAppearance "1992"^^xsd:gYear ;
+    cpt:lastRevised "2021"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:99204
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:EandMHeading ;
+    cpt:code "99204" ;
+    cpt:longDescriptor "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making"@en ;
+    cpt:mediumDescriptor "Office/outpatient visit, new pt, moderate MDM"@en ;
+    cpt:shortDescriptor "Office visit, new, moderate MDM"@en ;
+    cpt:firstAppearance "1992"^^xsd:gYear ;
+    cpt:lastRevised "2021"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:99213
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:EandMHeading ;
+    cpt:code "99213" ;
+    cpt:longDescriptor "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and low level of medical decision making"@en ;
+    cpt:mediumDescriptor "Office/outpatient visit, est pt, low MDM"@en ;
+    cpt:shortDescriptor "Office visit, est, low MDM"@en ;
+    cpt:firstAppearance "1992"^^xsd:gYear ;
+    cpt:lastRevised "2021"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+cpt:99215
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    skos:broader cpt:EandMHeading ;
+    cpt:code "99215" ;
+    cpt:longDescriptor "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and high level of medical decision making"@en ;
+    cpt:mediumDescriptor "Office/outpatient visit, est pt, high MDM"@en ;
+    cpt:shortDescriptor "Office visit, est, high MDM"@en ;
+    cpt:firstAppearance "1992"^^xsd:gYear ;
+    cpt:lastRevised "2021"^^xsd:gYear ;
+    cpt:addonCode "false"^^xsd:boolean ;
+    cpt:reportable "true"^^xsd:boolean ;
+    cpt:moderateConsciousSedation "false"^^xsd:boolean ;
+    cpt:level "PC" .
+
+################################################################################
+# Provisional codes (S88 CPT backfill)
+#   Codes referenced by already-extracted policies (A54969, tn2476, tn2677,
+#   A58075), re-homed from the hcpcs: namespace into cpt:. Code-only: the AMA
+#   descriptor is copyrighted and omitted pending the CMS-managed CPT file
+#   (cpt:provisional true). No skos:broader (heading assignment deferred).
+################################################################################
+
+# Category I
+cpt:19301
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "19301" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:23000
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "23000" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:31622
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "31622" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:31648
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "31648" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:31649
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "31649" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:31651
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "31651" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:32997
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "32997" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:32998
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "32998" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:33961
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "33961" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:36222
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "36222" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:36223
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "36223" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:36224
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "36224" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:36225
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "36225" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:36226
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "36226" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:36227
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "36227" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:36228
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "36228" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:51785
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "51785" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:64582
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "64582" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:64583
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "64583" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:64584
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "64584" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:81161
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "81161" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:86592
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "86592" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:86593
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "86593" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:86631
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "86631" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:86632
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "86632" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:86780
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "86780" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87110
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87110" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87270
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87270" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87320
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87320" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87340
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87340" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87341
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87341" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87490
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87490" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87491
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87491" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87590
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87590" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87591
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87591" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87631
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87631" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87800
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87800" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87810
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87810" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:87850
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "87850" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:90700
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "90700" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:90702
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "90702" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:90785
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "90785" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:92265
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "92265" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95865
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95865" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95866
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95866" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95867
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95867" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95868
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95868" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95869
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95869" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95870
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95870" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95872
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95872" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95873
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95873" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95874
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95874" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95905
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95905" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95933
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95933" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95937
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95937" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:95999
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "95999" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+# Category II
+cpt:3517F
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "3517F" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:3750F
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "3750F" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:4142F
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "4142F" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:6150F
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "6150F" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+# Category III
+cpt:0195T
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "0195T" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:0196T
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "0196T" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:0206T
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "0206T" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:0309T
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "0309T" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+
+cpt:94760
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "94760" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:94761
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "94761" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+cpt:94762
+    a cpt:CPTCode ;
+    skos:inScheme cpt:CPTConceptScheme ;
+    cpt:code "94762" ;
+    cpt:provisional "true"^^xsd:boolean ;
+    cpt:shortDescriptor "Descriptor is copyrighted by AMA"@en .
+
+################################################################################
+# end cpt.ttl
+################################################################################

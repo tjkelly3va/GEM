@@ -1,0 +1,18 @@
+# GEM line-ending policy.
+#
+# Git must never normalize line endings in this repository. The project's
+# formatting discipline is enforced by gem_audit.py's `formatting` check, which
+# fires RED with no autofix on any lone-LF in a .ttl file:
+#
+#   .ttl files  -> CRLF (except cpt.ttl, which is LF-authored)
+#   .md / .json -> LF
+#
+# On Windows, git's default core.autocrlf=true would rewrite endings on checkout
+# and corrupt GEM_policy_instances.ttl on the first clone. `* -text` disables
+# all text detection and conversion, so the bytes committed are the bytes
+# checked out.
+#
+# Do not replace this with per-extension eol= rules. Blanket -text is the whole
+# point: it cannot be wrong about a file type it has not been told about.
+
+* -text
