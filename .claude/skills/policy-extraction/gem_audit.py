@@ -200,10 +200,52 @@ def load_canonical_files(files_dir: Path) -> dict[str, bytes]:
     return out
 
 
+_HANDOFF_GLOB = "GEM_Policy-Extraction_Handoff_*.md"
+_HANDOFF_SUBDIR = "handoffs"
+_HANDOFF_SESSION_RE = re.compile(r"_session(\d+)\.md$", re.IGNORECASE)
+
+
+def _handoff_sort_key(name: str) -> tuple[int, int, str]:
+    """Sort key for handoff filenames (S260).
+
+    Primary key is the parsed session integer, so selection is width-independent
+    and immune to date/session inversion. Accepts any digit width: the corpus
+    carries legacy 3-digit names (`_session259.md`) and S260+ writes 5-digit
+    (`_session00260.md`), and the two must coexist in `handoffs/` without the
+    older name winning. Names carrying no parseable session number sort below
+    every name that does, tie-breaking lexicographically (pre-S260 behaviour).
+    """
+    m = _HANDOFF_SESSION_RE.search(name)
+    return (1, int(m.group(1)), name) if m else (0, 0, name)
+
+
+def _select_latest_handoff(names: list[str]) -> Optional[str]:
+    """Pure selector — filesystem-free so the in-memory self-test can reach it."""
+    return max(names, key=_handoff_sort_key) if names else None
+
+
+def _handoff_resolution_findings(sub: list[str], flat: list[str]) -> list[Finding]:
+    """Pure ambiguity guard. Both locations populated is unresolvable by rule."""
+    if sub and flat:
+        return [Finding(
+            tier="YELLOW", category="handoff_resolution", file=_HANDOFF_SUBDIR,
+            message=(f"Handoffs in both {_HANDOFF_SUBDIR}/ ({len(sub)}) and the "
+                     f"canonical directory ({len(flat)}). Resolving to "
+                     f"{_HANDOFF_SUBDIR}/; move the flat copies or delete them."),
+        )]
+    return []
+
+
 def find_latest_handoff(files_dir: Path) -> Optional[Path]:
-    """Auto-locate the most recent handoff document in the directory."""
-    candidates = sorted(files_dir.glob("GEM_Policy-Extraction_Handoff_*.md"))
-    return candidates[-1] if candidates else None
+    """Locate the newest handoff. `handoffs/` wins when populated; the flat
+    files-dir is the fallback, preserving pre-S260 layout and letting the
+    unmodified-layout case keep working."""
+    sub_dir = files_dir / _HANDOFF_SUBDIR
+    sub = [p.name for p in sub_dir.glob(_HANDOFF_GLOB)] if sub_dir.is_dir() else []
+    if sub:
+        return sub_dir / _select_latest_handoff(sub)
+    flat = [p.name for p in files_dir.glob(_HANDOFF_GLOB)]
+    return files_dir / _select_latest_handoff(flat) if flat else None
 
 
 def parse_handoff_table(handoff_path: Path) -> dict[str, tuple[str, int]]:
@@ -211,7 +253,7 @@ def parse_handoff_table(handoff_path: Path) -> dict[str, tuple[str, int]]:
 
     Returns dict {filename: (md5_hex, size_bytes)}.
     """
-    text = handoff_path.read_text()
+    text = handoff_path.read_text(encoding="utf-8")
     rows: dict[str, tuple[str, int]] = {}
 
     # Match §1 table rows in all four supported formats:
@@ -4132,13 +4174,30 @@ def audit_files_dict(
     return findings
 
 
-def run_audit(files_dir: Path, handoff_path: Optional[Path]) -> tuple[list[Finding], dict[str, bytes], dict[str, tuple[str, int]], Optional[str]]:
+def run_audit(files_dir: Path, handoff_path: Optional[Path]) -> tuple[list[Finding], dict[str, bytes], dict[str, tuple[str, int]], Optional[str], list[Finding]]:
     """Load canonical files from disk and run the audit.
 
-    Returns (findings, files, expected_hash_table, handoff_text). The latter
-    three are returned so callers (e.g. autofix re-audit) can avoid reloading.
+    Returns (findings, files, expected_hash_table, handoff_text,
+    resolution_findings). The middle three are returned so callers (e.g. autofix
+    re-audit) can avoid reloading.
+
+    resolution_findings is checklist item 34 (S260): the handoff-location
+    ambiguity guard. It is deliberately NOT an ALL_CHECKS member — every member
+    has signature (files, graph, expected, handoff_text) and never sees a
+    directory, so it is filesystem-scoped and cannot be registered without
+    changing all 34 registrations. It is returned SEPARATELY rather than merged
+    into `findings` because main()'s post-autofix pass calls audit_files_dict
+    directly, which never sees a directory; a merged finding would silently
+    vanish from the post-autofix report. That is the inert-default class S144
+    codified against, so main() prepends these to BOTH findings and findings2.
     """
     files = load_canonical_files(files_dir)
+
+    sub_dir = files_dir / _HANDOFF_SUBDIR
+    resolution_findings = _handoff_resolution_findings(
+        [p.name for p in sub_dir.glob(_HANDOFF_GLOB)] if sub_dir.is_dir() else [],
+        [p.name for p in files_dir.glob(_HANDOFF_GLOB)],
+    )
 
     if handoff_path is None:
         handoff_path = find_latest_handoff(files_dir)
@@ -4153,7 +4212,7 @@ def run_audit(files_dir: Path, handoff_path: Optional[Path]) -> tuple[list[Findi
             handoff_text = None
 
     findings = audit_files_dict(files, expected, handoff_text)
-    return findings, files, expected, handoff_text
+    return findings, files, expected, handoff_text, resolution_findings
 
 
 def apply_autofixes(findings: list[Finding], files: dict[str, bytes]) -> tuple[list[str], set[str]]:
@@ -6119,6 +6178,60 @@ def _variant_105_ncd_census_deleted_uncorroborated() -> dict:
     return {"files": _instances_graph_to_files(g)}
 
 
+# --- handoff resolution / selection (V106-V108; S260) ------------------------
+#
+# The three pure functions behind checklist item 34. They take FILENAME LISTS
+# rather than a directory precisely so the in-memory suite can reach them; only
+# find_latest_handoff's two glob calls stay uncovered, and those are covered
+# end-to-end by the S260 migration probe instead.
+#
+# All three fail against the pre-S260 script (NameError: the functions do not
+# exist), verified by running both scripts over the same fixtures — the S144
+# regression-test rule, which holds that a variant passing both is coverage
+# rather than a regression test.
+
+
+def _variant_106_handoff_select_mixed_width() -> dict:
+    """Same-date pair, mixed digit width. Lexicographic picks session259
+    ('2' > '0'); the numeric key picks 260. The corpus form is 5-digit (S260,
+    Tom), so the fixture is built at 5 digits per the S144 corpus-fixture rule."""
+    return {
+        "names": [
+            "GEM_Policy-Extraction_Handoff_2026-08-01_session259.md",
+            "GEM_Policy-Extraction_Handoff_2026-08-01_session00260.md",
+        ],
+        "expect": "GEM_Policy-Extraction_Handoff_2026-08-01_session00260.md",
+    }
+
+
+def _variant_107_handoff_select_digit_boundary() -> dict:
+    """The digit-width boundary itself: 3-digit 999 against 4-digit 1000.
+
+    The pair is deliberately NOT the brief's `session0999` / `session1000`,
+    which is a broken fixture in two ways at once: both names are four digits,
+    so it crosses no width boundary, and lexicographic order returns 1000
+    anyway ('0' < '1'), so it agrees with the numeric key and can witness no
+    defect. The pair below diverges — lexicographic picks 999 ('9' > '1'),
+    numeric picks 1000 — which is what makes it a regression test rather than
+    coverage (S144). 3-digit is also the real legacy corpus form, so this pins
+    width-independence against a shape the corpus actually carried."""
+    return {
+        "names": [
+            "GEM_Policy-Extraction_Handoff_2026-08-01_session999.md",
+            "GEM_Policy-Extraction_Handoff_2026-08-01_session1000.md",
+        ],
+        "expect": "GEM_Policy-Extraction_Handoff_2026-08-01_session1000.md",
+    }
+
+
+def _variant_108_handoff_resolution_both_populated() -> dict:
+    """Both locations populated — unresolvable by rule, so exactly one YELLOW."""
+    return {
+        "sub": ["GEM_Policy-Extraction_Handoff_2026-08-03_session00260.md"],
+        "flat": ["GEM_Policy-Extraction_Handoff_2026-08-01_session259.md"],
+    }
+
+
 _VARIANTS = [
     # --- Phase 3 variants (V1-V11; S72 Cycle 0) ----------------------------
     (
@@ -6739,6 +6852,25 @@ _VARIANTS = [
         _variant_105_ncd_census_deleted_uncorroborated,
         [("INFO", "ncd_census", "ncdV105a")],
     ),
+    # --- handoff resolution / selection (V106-V108; S260) -----------------
+    (
+        "Variant 106 (same-date mixed-width pair -> selects session00260)",
+        "handoff_selection",
+        _variant_106_handoff_select_mixed_width,
+        [],
+    ),
+    (
+        "Variant 107 (digit-width boundary 999/1000 -> selects 1000)",
+        "handoff_selection",
+        _variant_107_handoff_select_digit_boundary,
+        [],
+    ),
+    (
+        "Variant 108 (handoffs in both handoffs/ and flat dir -> YELLOW)",
+        "handoff_resolution",
+        _variant_108_handoff_resolution_both_populated,
+        [("YELLOW", "handoff_resolution", "")],
+    ),
 ]
 
 
@@ -6749,7 +6881,29 @@ def _run_variant_check(ctx: dict, check_category: str) -> list[Finding]:
     The context dict must contain "files" (dict[str, bytes]); it may also
     contain "expected_hashes" (dict, default {}) and "handoff_text"
     (str | None, default None).
+
+    Two S260 sentinel categories are handled first and take a different context
+    shape, because handoff resolution is filesystem-scoped and neither of its
+    functions is an ALL_CHECKS member (see run_audit's docstring). Both are
+    pure-function probes over FILENAME LISTS, which is what keeps them reachable
+    from an in-memory suite at all:
+      "handoff_selection"  — ctx {names: list[str], expect: str}; emits a RED
+                             when _select_latest_handoff picks the wrong name,
+                             so the variant's expectation is "zero findings".
+      "handoff_resolution" — ctx {sub: list[str], flat: list[str]}; returns
+                             _handoff_resolution_findings verbatim.
     """
+    if check_category == "handoff_selection":
+        got = _select_latest_handoff(ctx["names"])
+        if got == ctx["expect"]:
+            return []
+        return [Finding(
+            tier="RED", category="handoff_selection",
+            message=(f"_select_latest_handoff picked {got!r}; expected "
+                     f"{ctx['expect']!r} from {ctx['names']!r}"))]
+    if check_category == "handoff_resolution":
+        return _handoff_resolution_findings(ctx["sub"], ctx["flat"])
+
     files = ctx["files"]
     expected = ctx.get("expected_hashes", {})
     handoff_text = ctx.get("handoff_text")
@@ -6812,6 +6966,7 @@ def run_self_test() -> int:
     print(f"  S161 variants:        V72-V76 (deferred_proposals_id)")
     print(f"  S173 variants:        V81-V83 (description_workflow_leak)")
     print(f"  S182 variants:        V85-V87 (workflow_header_counts)")
+    print(f"  S260 variants:        V106-V108 (handoff selection / resolution)")
     print(f"  Total:                {len(_VARIANTS)} variants")
     print("=" * 72)
 
@@ -6894,7 +7049,11 @@ def main() -> int:
     if args.self_test:
         return run_self_test()
 
-    findings, files, expected, handoff_text = run_audit(args.files_dir, args.handoff)
+    findings, files, expected, handoff_text, resolution = run_audit(
+        args.files_dir, args.handoff)
+    # Checklist item 34 rides on BOTH passes: audit_files_dict never sees a
+    # directory, so without this the post-autofix report would silently drop it.
+    findings = resolution + findings
 
     if args.autofix:
         applied, modified_names = apply_autofixes(findings, files)
@@ -6910,7 +7069,7 @@ def main() -> int:
         # Re-run the audit on the in-memory post-fix state. This avoids
         # re-reading from disk (which would be wrong when --output-dir is
         # set since unmodified files aren't there).
-        findings2 = audit_files_dict(files, expected, handoff_text)
+        findings2 = resolution + audit_files_dict(files, expected, handoff_text)
 
         if args.json:
             print(json.dumps({

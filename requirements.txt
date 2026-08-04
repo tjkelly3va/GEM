@@ -1,0 +1,17 @@
+# GEM runtime dependencies.
+#
+# NOT a canonical file: no §1 handoff row, no CANONICAL_FILES entry. It declares
+# what the scripts need, which was previously undeclared anywhere — the PyYAML
+# requirement cost a debugging cycle during the S260 port precisely because it is
+# invisible at the top of gem_audit.py (a lazy import inside parse_claim_blocks).
+#
+# The lazy import stays lazy. It is what lets the audit run and report its other
+# 30-odd checks when PyYAML is absent, and the failure is already loud: one YELLOW
+# per handoff §4 item naming the cause. Promoting it to a module-level import
+# would convert a degraded-but-useful run into a hard crash.
+
+rdflib          # graph parsing; gem_audit.py and gem_policy_to_docx.py
+pyshacl         # SHACL validation of the instance graph
+pyyaml          # handoff §4 AUDIT-CLAIMS blocks (lazy import — see above)
+pdfplumber      # source-PDF text extraction during policy reading
+python-docx     # gem-policy-docx skill: Word readout of a single policy

@@ -16,7 +16,11 @@ live there, flat. The audit resolves the handoff document itself; see SKILL.md
 
 ## Session bootstrap (auto-authorized — run without asking)
 
-From the canonical directory:
+From the canonical directory — read the latest handoff in `handoffs/`, then:
+
+    python gem_audit.py --files-dir . --autofix
+
+Dependencies are declared in `requirements.txt` at the repo root.
 
 Report the outcome, then ask which §4 open item from the latest handoff is first.
 Do not pause between reading the handoff and running the audit.
