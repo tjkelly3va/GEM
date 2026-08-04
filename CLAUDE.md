@@ -52,7 +52,7 @@ URLs. Do not edit, flag, analyze, or propose changes to any of them.
 
 ## Version control
 
-`git` is the undo. Commit at session open; `git diff` is the review; `git checkout -- .` reverts. Session close commits via `/gem-close`. Never push to a remote.
+`git` is the undo. Commit at session open; `git diff` is the review; `git checkout -- .` reverts. Session close commits via `/gem-close`, which also **pushes to `origin/main`** — the remote is `github.com/tjkelly3va/GEM`, **private**, and is the only off-machine copy of `sources/`. Push only at close, after the audit is GREEN and the §1 table is computed; pushing a half-closed state publishes an invalid §1 table. (Before S260 this read "never push to a remote," which was true while no remote existed.)
 
 
 

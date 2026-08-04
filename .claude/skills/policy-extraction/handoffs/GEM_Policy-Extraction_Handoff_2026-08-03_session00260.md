@@ -10,7 +10,7 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | `GEM_policy_instances.ttl` | `b6f4cb44d1c2b21015145f3eebcfdf1f` | 5598468 | **M** |
 | `GEM_code_group_instances.ttl` | `10a70c01175dcf714a4bd8307bd07eeb` | 25942 |  |
 | `cpt.ttl` | `351aa816b978ec63a6800feb50bfb5c4` | 35223 |  |
-| `SKILL.md` | `3fd25f38cc9dcb83e981261ba89d2834` | 275527 | **M** |
+| `SKILL.md` | `01f2d493bb54ee211512e35b1e5fa31e` | 276199 | **M** |
 | `gem_reference.md` | `4ddd97d8b96dec2b4aff8e0318376c46` | 120152 |  |
 | `gem_rule_categories.md` | `3187c128d8098b89ae5de10f898045a6` | 1378330 | **M** |
 | `gem_edit_log.md` | `fc26b62f2a9eff2dd824eec3560e308b` | 90851 | **M** |
@@ -196,4 +196,4 @@ Then, subject to the NCD priority above: process the next policy; promote a `pla
 - **Do not reprocess any already-extracted NCD until every NCD is processed (Tom, S260).** Forward progress on unprocessed NCDs takes priority over revisiting finished ones; reprocessing resumes only once the NCD corpus is complete. This is a standing constraint, not an S261-only one — carry it forward. It **supersedes any individual reprocessing flag already on the books**, including `SKILL.md`'s standing note that *"NCD 240.2 R1 carries the un-rejoined `long- term` form and is flagged for a verbatim-review check"* (S102, line-wrap de-hyphenation). That flag stays where it is and stays unactioned; do not surface it as available work. Enrichment of an *unfinished* policy, and promotion of a `planPromote` stub through its own Plan/Generate cycle, are not reprocessing and are unaffected.
 - **Do not delete anything from `sources/`, and do not delete the Dropbox originals** (Tom, S260). Deletions happen only on an explicit request naming the files — and are not to be volunteered, suggested, or made convenient.
 - **Do not read other policy-PDF locations.** `Dropbox\Projects\HOO2pilot\policies` is the sanctioned source directory; `OneDrive\Projects\HOO2pilot\policies`, `Dropbox\Projects\GEMrag\docRepository` and any others are off-limits unless Tom names them.
-- Never push to a remote.
+- **Push at session close, not before (changed S260).** A remote now exists — `github.com/tjkelly3va/GEM`, **private**, `main` tracking `origin/main` — so the long-standing "never push" rule is retired; it was accurate only while no remote existed. `/gem-close` performs the push. Push **only** after the audit is GREEN and the §1 table is computed: pushing mid-close publishes a §1 table that does not describe the pushed bytes, and the next bootstrap reconciles `hash_verify` against it. The remote is the **only off-machine copy of `sources/`**, so stopping at the commit leaves the 292-PDF library single-copy on one machine.

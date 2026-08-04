@@ -368,7 +368,13 @@ with the session number **zero-padded to 5 digits** (`session00260`). Padding an
        git add -A
        git commit -m "S{N}: <one-line summary>"
 
-   The handoff and any source PDFs are part of the same commit. **Never push to a remote.** `/gem-close` is the invocation of this checklist and performs the commit; it deliberately does not restate the steps, because two copies of a procedure is the drift class this project exists to fight.
+   The handoff and any source PDFs are part of the same commit. Then **push to `origin/main`** (`github.com/tjkelly3va/GEM`, private):
+
+       git push
+
+   **Push only at close, and only after the audit is GREEN and the §1 table is computed.** The ordering is the same discipline the table itself depends on: a push mid-close publishes a §1 table that does not describe the pushed bytes, and the next session's `hash_verify` reconciles against it. The remote is also the **only off-machine copy of `sources/`**, so a session that commits without pushing leaves the source library single-copy on one machine.
+
+   `/gem-close` is the invocation of this checklist and performs both the commit and the push; it deliberately does not restate the steps, because two copies of a procedure is the drift class this project exists to fight. (Before S260 this section read "never push to a remote" — accurate while no remote existed, and superseded when one was created.)
 
 ---
 

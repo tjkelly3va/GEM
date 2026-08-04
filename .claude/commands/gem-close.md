@@ -1,5 +1,5 @@
 ---
-description: Close the GEM session — run the SKILL.md close checklist, then commit.
+description: Close the GEM session — run the SKILL.md close checklist, then commit and push.
 ---
 
 Close the current GEM session.
@@ -30,9 +30,18 @@ Order is load-bearing. Do not reorder:
        git add -A
        git commit -m "S{N}: <one-line summary>"
 
-   The handoff and the source PDFs are part of the commit. **Never push.**
+   The handoff and the source PDFs are part of the commit.
 
-7. Report: what changed, the audit tier counts, the INFO queue totals, the NCD
+7. Push:
+
+       git push
+
+   Only after step 4 is GREEN and step 5's table is written — a push before
+   that publishes a §1 table that does not describe the pushed bytes. The
+   remote (`github.com/tjkelly3va/GEM`, private) is the only off-machine copy
+   of `sources/`, so do not stop at the commit.
+
+8. Report: what changed, the audit tier counts, the INFO queue totals, the NCD
    census line, and the commit SHA.
 
 If the audit is not GREEN at step 4, stop and surface the finding. Do not compute
