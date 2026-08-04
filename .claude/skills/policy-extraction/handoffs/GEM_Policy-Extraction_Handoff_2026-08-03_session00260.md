@@ -151,6 +151,7 @@ Items 1–31 carry from S259 **unchanged in substance**; the transport port touc
 39. **Promote-queue ratio is invisible in the worklist (S260).** **706 `planPromote` stubs against 161 `planDone`.** Since the S131 mint-every-referenced-policy rule, references are minted straight to the graph, so `policy_worklist.json` (22 entries) no longer reflects the backlog and the checkpoint's "worklist size" agenda item measures the wrong thing. Options: retarget that agenda item at the workflow-state counts, or surface the ratio in the audit's INFO tier beside the NCD census. Pending Tom — and bears on the batch-size question, which is now a 706-item question rather than a 22-item one.
 40. **`memory edit #13` still reads as a followable pointer (S260).** §Session Close's historical parenthetical cites it to explain what the pre-port batching rule was for. Now that the chat-era memory set is confirmed to have no Claude Code equivalent (§2(h)), the citation points at something a reader cannot reach. Either gloss it in place ("a chat-era standing instruction, since retired") or drop the clause. Cosmetic; left alone in S260 because Tom's instruction scoped the port edit to three specific sentences.
 
+41. **The NCD corpus has no denominator (S260) — this is what gates "all NCDs are processed".** The graph holds **146** NCD sections, and it holds them because each was either extracted or cited by something extracted. **Nothing has ever compared that set against the list of NCDs CMS actually publishes.** Consequence: once NCD 20.4 and NCD 210.3 land (§5.2), the NCD queue reads empty while the corpus may still be materially incomplete, and no check in `gem_audit.py` can tell the difference — `ncd_census` counts what is in the graph, by design. The sparsity is visible in the section families: §90, §180, §200, §300 and §310 each hold exactly one section. Resolution needs an authoritative list — an MCD export or the Pub. 100-03 table of contents from Tom, or Tom's go-ahead for a session to fetch and reconcile the CMS NCD index (the standing rule is that identifiers and URLs come from Tom, so a session does not do this unasked). The output is a gap list; until it exists, "finish the NCDs" has no testable completion criterion. **Raise this before declaring the NCD priority met.**
 ---
 
 ## §5 — Plan for S261
@@ -161,11 +162,28 @@ From the canonical directory, read the latest handoff in `handoffs/`, then run `
 
 **Fifteen simultaneous `hash_verify` YELLOWs** reading "present but not listed in handoff §1 table" is one cause, not fifteen problems: no handoff was resolved. `handoff_drift` and the `empirical_counts` session marker are silently inert in that state. Fix resolution first. A `handoff_resolution` YELLOW (item 34) means handoffs exist in both `handoffs/` and the flat canonical directory — move or delete the flat copies.
 
-### §5.2 — First action
+### §5.2 — Standing priority: finish the NCDs (Tom, S260)
 
-**The cadence checkpoint is done** (§2(h), run at 161; next due at 180), so S261 opens with no standing obligation. Cheapest first business is the four decisions it left — §4 items **37–40**, all small: close `[92]`, add the census-scope sentence, retarget the worklist-size agenda item at the promote-queue ratio, and gloss `memory edit #13`.
+**Process all NCDs first. The other policy documents follow.** This supersedes the previous no-forced-order guidance and outranks the promote-queue composition analysis in §4 item 39 — the 115 LCD/Article coverage policies and the 48 companion pairs identified there are *later* work, not competing work.
 
-Otherwise no forced order: process the next policy; promote a `planPromote` stub through its own Plan/Generate cycle (items 5–13, 21, incl. `gemi:ncd20.4` and `gemi:ncd210.3`); or advance a §4 item — 35 and 36 are both cheap. Note that **reprocessing is closed** until every NCD is processed (§5.3), so items that would revisit a finished policy are not available.
+**The NCD queue is exactly two policies**, both `planPromote` stubs, both larger than S260's pair:
+
+| Policy | Title | Note |
+| :--- | :--- | :--- |
+| **NCD 20.4** | Implantable Automatic Defibrillators (ICDs) | CED policy with registry requirements; expect multi-version |
+| **NCD 210.3** | Colorectal Cancer Screening Tests | Extensive coding, long revision history; expect multi-version |
+
+**Source workflow.** Both sit behind a CMS gate Tom can pass; **Tom drops the PDFs into `sources/` as he extracts them**, and a session picks them up from there. Do not attempt to source them another way, and do not extrapolate their URLs — the standing rule that identifiers and URLs come from Tom is unchanged. Pre-Extraction requirement 5 applies: **every version, not just the one in effect**, since both are likely multi-version and the cross-version retention walk and V1 date anchoring both depend on having them all.
+
+**`sources/` currently holds nothing for either** — verified at S260, along with the stronger result that **0 NCDs have a PDF on hand without a graph individual**, so there is no hidden extractable NCD work anywhere in the library.
+
+**When those two land, the NCD queue reads empty — and that is not the same as complete.** See §4 item 41.
+
+### §5.2a — After the NCDs
+
+The cadence checkpoint is done (§2(h), run at 161; next due at 180), so nothing else is owed. Cheap fill-in work: the four checkpoint decisions, §4 items **37–40** — close `[92]`, add the census-scope sentence, retarget the worklist-size agenda item, gloss `memory edit #13`.
+
+Then, subject to the NCD priority above: process the next policy; promote a `planPromote` stub through its own Plan/Generate cycle (items 5–13, 21, incl. `gemi:ncd20.4` and `gemi:ncd210.3`); or advance a §4 item — 35 and 36 are both cheap. Note that **reprocessing is closed** until every NCD is processed (§5.3), so items that would revisit a finished policy are not available.
 
 ### §5.3 — Do not
 
