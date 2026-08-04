@@ -51,8 +51,19 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml.ns import qn
 
-GEM = Namespace("http://www.cms.hhs.gov/ontology/2026/07/GEM/")
-GEMI = Namespace("http://www.cms.hhs.gov/ontology/2026/07/GEM/instances/")
+# GEM / GEMI are RUNTIME-DETECTED from the loaded graph's own @prefix
+# declarations (see detect_gem_namespace + bind_gem_namespace), so a namespace
+# version bump needs no edit here. The literals below are only the fallback used
+# when no declaration is found; keep them at the most recent known namespace so a
+# detection miss still degrades to a working default. This mirrors gem_audit.py's
+# Option B (S255).
+#
+# Re-hardcoding these is the S260 defect and it fails SILENTLY-shaped: under a
+# stale namespace every gem: query returns zero rows, which is indistinguishable
+# from "no such policy", so the script exits telling you to check an identifier
+# that was correct all along — for every policy, not just the one you asked for.
+GEM = Namespace("http://www.cms.hhs.gov/ontology/2026/08/GEM/")
+GEMI = Namespace("http://www.cms.hhs.gov/ontology/2026/08/GEM/instances/")
 DC = Namespace("http://purl.org/dc/elements/1.1/")
 
 # External code vocabularies -> (system label, URI stem)
@@ -70,27 +81,68 @@ DEFAULT_FILES = [
     "cpt.ttl",
 ]
 
-# Predicates handled explicitly in the curated policy readout, so the generic
-# "other references" pass skips them.
-POLICY_IDENTITY_PREDS = [
-    ("Identifier", GEM.identifier),
-    ("Version", GEM.policyVersion),
-    ("Effective date", GEM.policyEffectiveDate),
-    ("Implementation date", GEM.policyImplementationDate),
-    ("Publication number", GEM.publicationNumber),
-    ("Manual section", GEM.manualSectionNumber),
-    ("Page count", GEM.policyPageCount),
-    ("In effect", GEM.isInEffect),
-    ("Next planned step", GEM.nextPlannedStep),
-]
+# These two are the ONLY module-level constants derived from GEM, so they are the
+# only ones runtime detection has to rebuild. They are built inside a function
+# rather than at import time on purpose: a GEM.-qualified URIRef captured at
+# import freezes the namespace, and rebinding the GEM global afterwards would
+# leave these still pointing at the old one — a rebind that looks like it worked
+# and silently doesn't. gem_audit.py carries the scar of exactly this
+# (_LLM_ANNOTATED_VOCAB_LOCALNAMES holds local names, not URIRefs, for the same
+# reason). bind_gem_namespace() calls this again after detection.
+POLICY_IDENTITY_PREDS: list = []
+SUPPRESS_PREDS: set = set()
 
-# Predicates never shown as raw rows (structural / provenance / handled elsewhere).
-SUPPRESS_PREDS = {
-    RDF.type, GEM.memberOfOntology, GEM.prefLabel, GEM.description,
-    GEM.workflowDescription, GEM.identifier, GEM.hasPolicyRule,
-    GEM.hasPolicyGroup, GEM.hasPolicyCodingRule, DC.source,
-}
-SUPPRESS_PREDS |= {p for _, p in POLICY_IDENTITY_PREDS}
+
+def _rebuild_gem_derived() -> None:
+    """Rebuild every GEM-derived module constant from the current GEM binding."""
+    global POLICY_IDENTITY_PREDS, SUPPRESS_PREDS
+    # Predicates handled explicitly in the curated policy readout, so the generic
+    # "other references" pass skips them.
+    POLICY_IDENTITY_PREDS = [
+        ("Identifier", GEM.identifier),
+        ("Version", GEM.policyVersion),
+        ("Effective date", GEM.policyEffectiveDate),
+        ("Implementation date", GEM.policyImplementationDate),
+        ("Publication number", GEM.publicationNumber),
+        ("Manual section", GEM.manualSectionNumber),
+        ("Page count", GEM.policyPageCount),
+        ("In effect", GEM.isInEffect),
+        ("Next planned step", GEM.nextPlannedStep),
+    ]
+    # Predicates never shown as raw rows (structural / provenance / elsewhere).
+    SUPPRESS_PREDS = {
+        RDF.type, GEM.memberOfOntology, GEM.prefLabel, GEM.description,
+        GEM.workflowDescription, GEM.identifier, GEM.hasPolicyRule,
+        GEM.hasPolicyGroup, GEM.hasPolicyCodingRule, DC.source,
+    }
+    SUPPRESS_PREDS |= {p for _, p in POLICY_IDENTITY_PREDS}
+
+
+def detect_gem_namespace(g: rdflib.Graph) -> tuple[str, str]:
+    """Read the GEM / GEMI base IRIs from the parsed graph's own prefix bindings.
+
+    rdflib preserves each `@prefix` declaration it parsed, so the loaded corpus
+    is self-describing and no file re-read is needed. `gem:` is read directly;
+    `gemi:` is read directly when present, else derived as gem + "instances/".
+    Falls back to the module-level literals when neither is declared.
+    """
+    bound = {p: str(n) for p, n in g.namespaces()}
+    gem_uri = bound.get("gem")
+    if gem_uri is None:
+        return str(GEM), str(GEMI)
+    return gem_uri, bound.get("gemi", gem_uri + "instances/")
+
+
+def bind_gem_namespace(g: rdflib.Graph) -> str:
+    """Detect and bind the namespace for this run. Returns the GEM base IRI."""
+    global GEM, GEMI
+    gem_uri, gemi_uri = detect_gem_namespace(g)
+    GEM, GEMI = Namespace(gem_uri), Namespace(gemi_uri)
+    _rebuild_gem_derived()
+    return gem_uri
+
+
+_rebuild_gem_derived()
 
 # Friendly names for common predicates; fall back to de-camelCased local name.
 PRED_LABELS = {
@@ -552,6 +604,16 @@ def main():
     g, loaded = load_graph(args.files_dir)
     if not loaded:
         sys.exit(f"ERROR: no .ttl files found in {args.files_dir}")
+
+    # Bind the namespace BEFORE any gem: query. Must precede resolve_policy:
+    # under a wrong namespace it returns [] and the "no such policy" exit below
+    # blames the identifier for what is really a namespace mismatch.
+    gem_uri = bind_gem_namespace(g)
+    if not any(g.triples((None, GEM.identifier, None))):
+        sys.exit(f"ERROR: no gem:identifier triples under the detected namespace "
+                 f"<{gem_uri}>. The graph in {args.files_dir} does not declare a "
+                 f"usable `gem:` prefix; this is a namespace problem, not an "
+                 f"identifier problem.")
 
     hits = resolve_policy(g, args.identifier)
     if not hits:
