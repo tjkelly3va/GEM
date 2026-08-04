@@ -3096,6 +3096,12 @@ def check_ncd_census(
 # from the graph. Its value here is that it turns a research result into a
 # regression test. Add a row when a policy's V1 dates are established.
 #
+# S260 (Tom): adding the row is part of the SAME Generate turn that mints a
+# policyVersion > 1 policy, and is not asked about. Otherwise the policy enters
+# the INFO queue below with its V1 dates already known -- a queue entry whose
+# answer was in hand when it was created. See SKILL.md, Policy dates anchor to
+# Version 1.
+#
 # Two tiers, split on the codebase's own INFO/YELLOW rationale (see
 # source_availability_unverified):
 #   INFO   -- a candidate whose V1 dates are not yet known. That is a WORK QUEUE,

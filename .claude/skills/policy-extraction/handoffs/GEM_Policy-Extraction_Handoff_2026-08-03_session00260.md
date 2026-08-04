@@ -10,7 +10,7 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | `GEM_policy_instances.ttl` | `6c68153a7cafa3de01db2aca9821d181` | 5664290 | **M** |
 | `GEM_code_group_instances.ttl` | `10a70c01175dcf714a4bd8307bd07eeb` | 25942 |  |
 | `cpt.ttl` | `351aa816b978ec63a6800feb50bfb5c4` | 35223 |  |
-| `SKILL.md` | `742c1b3d88ab7e359b9bf41326a38159` | 276880 | **M** |
+| `SKILL.md` | `2e88b6eafa6c3b7eb839dee6aef38d44` | 277820 | **M** |
 | `gem_reference.md` | `4ddd97d8b96dec2b4aff8e0318376c46` | 120152 |  |
 | `gem_rule_categories.md` | `91adc9e28f00057de4c740b833a7abbc` | 1390132 | **M** |
 | `gem_edit_log.md` | `fd63bcc8e07ca997d30d30062fb894ce` | 94593 | **M** |
@@ -20,7 +20,7 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | `policy_worklist.json` | `e8d57838e72b3ae9ef724f58893c0833` | 322762 | **M** |
 | `gem_llm_annotations.json` | `ae89620445889e7137e2bdc5ba4cd669` | 7213 |  |
 | `worklist_schema.md` | `3f012027bb2d328e229042ed2e89b5d9` | 16002 |  |
-| `gem_audit.py` | `a735d370b64eceb92afe0250f169efab` | 315730 | **M** |
+| `gem_audit.py` | `16824568d0a13836d72e289c05341ef1` | 316058 | **M** |
 
 ## §2 — Work completed in S260
 
@@ -152,6 +152,7 @@ Thirteen borderlines, each Tom-confirmed individually.
 - **D4 (B6) — `python3` → `python`.** Not on PATH on Windows.
 - **D5 (B8) — no `gem_edit_log.md` entry.** Evidence, not assumption: the log's header scopes it to **corpus** changes, and every audit-script/methodology session in range — S144, S145, S156, S157, S158, S159, S175, S182, S197, S237 — has no entry, including those that added whole audit checks.
 - **D6 (B4/B7/B9/B10–B13).** Handoff filename keeps the date. `CLAUDE.md` bootstrap block restored. `allowed-tools: Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch` — `WebSearch`/`WebFetch` because §Policy-to-Policy References makes web resolution a **required** step for a cited-policy URL not already in hand. `.skill` zip deleted; docx verify step retargeted; `python-docx` added to `requirements.txt`; plain `mv` for the untracked docx files, `git mv` only for the handoff.
+- **D8 — record V1 dates in `KNOWN_V1_DATES` in the same Generate turn, without asking (Tom, S260).** A policy minted at `gem:policyVersion` > 1 enters `policy_effective_date_v1`'s INFO work queue immediately, because the check keys off `gem_audit.py`'s hand-maintained table and cannot see that the extraction already read V1. Both NCD 20.15 and NCD 190.4 queued this session with their V1 dates already established — a queue entry whose answer was in hand when it was created. The row is now added as part of the same Generate, with `None` as the second element where V1 publishes no Implementation Date field (recording the S192 no-manufacture ruling, not a gap), inserted in section order. Written into `SKILL.md` §Policy dates anchor to Version 1 and into the `KNOWN_V1_DATES` comment block, so it survives the session rather than living in conversation. **Standing — do not ask.**
 - **D7 — `sources/` files are not annotated in the graph; `dc:source` is sufficient (Tom, S260).** No triple links a policy individual to the PDF in `sources/` that backed its extraction, and none is wanted: `dc:source` already carries the provenance the graph needs. The directory is a human-facing archive, not a modelled entity. This **closes the S260 §4 item** that proposed settling a `sources/` naming convention to record which rendition was read — the item is struck rather than deferred, so a future session should not re-file it. The eventual answer is a different shape entirely: **version-level policy instances, each with `dc:source` pointing at that version's own online document URL**, which makes the rendition identifiable from the graph without a filename convention. That work is weeks to months out and is not queued here.
 
 ## §4 — Open items
