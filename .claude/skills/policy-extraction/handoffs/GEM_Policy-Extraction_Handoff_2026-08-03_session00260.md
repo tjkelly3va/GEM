@@ -7,17 +7,17 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | File | md5 | size | S260 |
 | :--- | :--- | :--- | :--- |
 | `GEM_ontology.ttl` | `5a77000e27e2ce03d6e2e0596e716934` | 340257 |  |
-| `GEM_policy_instances.ttl` | `80b43cc47b1bb1b1884b620c45a20318` | 5587361 | **M** |
+| `GEM_policy_instances.ttl` | `b6f4cb44d1c2b21015145f3eebcfdf1f` | 5598468 | **M** |
 | `GEM_code_group_instances.ttl` | `10a70c01175dcf714a4bd8307bd07eeb` | 25942 |  |
 | `cpt.ttl` | `351aa816b978ec63a6800feb50bfb5c4` | 35223 |  |
 | `SKILL.md` | `ad748bb3bbe482cff84bcb9322e38da9` | 275540 | **M** |
 | `gem_reference.md` | `4ddd97d8b96dec2b4aff8e0318376c46` | 120152 |  |
-| `gem_rule_categories.md` | `6e5cc7f7e884fc3cdc6eb1c43ef3100e` | 1372856 | **M** |
-| `gem_edit_log.md` | `4399adb3627a7638adc0fb330c85bb0e` | 89104 | **M** |
+| `gem_rule_categories.md` | `3187c128d8098b89ae5de10f898045a6` | 1378330 | **M** |
+| `gem_edit_log.md` | `fc26b62f2a9eff2dd824eec3560e308b` | 90851 | **M** |
 | `gem_structured_rule_guide.md` | `5dc562fdf25cdd7a492969be2b82fee5` | 60817 |  |
 | `gem_turtle_style_guide.md` | `1983054a2c8a5601ed9cbaa2c624b74f` | 24849 |  |
 | `manifest_format.md` | `24d134579244454795e39b2be1ce80d3` | 26227 |  |
-| `policy_worklist.json` | `196eca684cd2df4f1540f4ae17c520ef` | 322762 | **M** |
+| `policy_worklist.json` | `0be4f75b95b0e79413985644d03a56ed` | 322762 | **M** |
 | `gem_llm_annotations.json` | `ae89620445889e7137e2bdc5ba4cd669` | 7213 |  |
 | `worklist_schema.md` | `3f012027bb2d328e229042ed2e89b5d9` | 16002 |  |
 | `gem_audit.py` | `73b3311387189997186edc1375fe1fb8` | 315654 | **M** |
@@ -28,11 +28,11 @@ S260 has **two distinct halves**, and the second was not in the session brief.
 
 **Half one — Stage B, the Claude Chat → Claude Code port of the `policy-extraction` skill** (§2(a)–(e)). A transport-layer migration plus three `gem_audit.py` corrections, the `sources/` population, and **no graph change**: through the end of §2(e), `GEM_ontology.ttl`, `GEM_policy_instances.ttl`, `GEM_code_group_instances.ttl`, `cpt.ttl`, `policy_worklist.json`, `gem_llm_annotations.json`, `gem_reference.md`, `gem_rule_categories.md`, `gem_edit_log.md`, `gem_structured_rule_guide.md`, `gem_turtle_style_guide.md`, `manifest_format.md` and `worklist_schema.md` were all byte-identical to S259. Run as a normal two-turn pass: manifest first, thirteen borderlines resolved one at a time, then Generate.
 
-**Half two — the NCD 130.4 extraction** (§2(f)), requested by Tom after the port closed. This is where the graph moved: `policies_processed` **159 → 160**, `referencesPolicy` **1109 → 1112**, census **Active 127 → 128, Total 144 → 145**. `revisesPolicy` unchanged at **239**, `revisedByPolicy` at **0**. Both a `gem_rule_categories.md` section and a `gem_edit_log.md` entry were authored for it, in the same Generate turn.
+**Half two — two extractions** (§2(f) and §2(g)), both requested by Tom after the port closed, both single-version longstanding non-coverage NCDs, both read from the freshly-populated `sources/` library. This is where the graph moved: `policies_processed` **159 → 161**, `referencesPolicy` **1109 → 1112**, census **Active 127 → 129, Total 144 → 146**. `revisesPolicy` unchanged at **239**, `revisedByPolicy` at **0**. Each carries its own `gem_rule_categories.md` section and `gem_edit_log.md` line, authored in the same Generate turn as its triples.
 
-**The cadence checkpoint is now DUE, not approaching** — `policies_processed` reached 160 with this extraction, and the 20-policy review has not been run. It is S261's first business.
+**The cadence checkpoint is DUE and was passed through, not run.** `policies_processed` crossed 160 at NCD 130.4 and stands at **161** after NCD 230.15. The 20-policy review was flagged before the second extraction and Tom elected to proceed; it remains unrun and is S261's first business.
 
-§3 D5's finding still stands for half one: a transport-only session earns no edit-log entry, and the log's own scope plus the S144/S145/S156–S159/S175/S182/S197/S237 precedent is the evidence. NCD 130.4 earns one because it is a corpus change.
+§3 D5's finding still stands for half one: a transport-only session earns no edit-log entry, and the log's own scope plus the S144/S145/S156–S159/S175/S182/S197/S237 precedent is the evidence. Both extractions earn one because they are corpus changes.
 
 ### (a) `gem_audit.py` — three corrections
 
@@ -91,6 +91,19 @@ Fresh extraction on Tom's request, `gemi:ncd130.4` (ncdid=31), never worklisted,
 - **Verification.** Triple delta +77 **with the predicate histogram checked, not just the total** (S157): both rules carry exactly one `gem:ruleDescription` and zero `gem:description`, which is the specific defect a matching count cannot see. TTL re-parsed clean — 59,579 CRLF, **0 lone-LF**, 0 tabs, terminal `.\r\n` intact.
 - **Registry.** `### NCD 130.4` in `gem_rule_categories.md` and an S260 line in `gem_edit_log.md`, both authored in the same Generate turn (non-deferrable). `policies_processed` 159 → 160 in `policy_worklist.json`; TTL processed-list header and the `planDone / isInEffect=True` group count (159 → 160) both updated.
 
+### (g) NCD 230.15 extracted — Electrical Continence Aid
+
+Second extraction of the session, `gemi:ncd230.15` (ncdid=234), same shape as §2(f): fresh, never worklisted, minted direct to the graph, two-turn with four borderlines all Tom-confirmed. **+74 triples.**
+
+- **Source.** `sources/NCD 230.15.pdf`, text-layer, complete, ungated; 2 pp, 271 words.
+- **Version and dates.** Version 1, listed alone in the Other Versions table (`01/01/1966 - N/A`). **Effective 1966-01-01** by the same longstanding-NCD read as NCD 130.4 — Tracking Information declines to post it. No implementation date. Not a `[107]` candidate; INFO stays **24**.
+- **Rules (2).** `r1` `serviceDefinition` — the device description as one Pattern-3 rule (B1). `r2` `nonCoverage` **+ `statutoryFraming`** (B2) — the experimental-stage finding and the non-coverage determination as one unit, joined by the source's own *"Therefore"*. `statutoryFraming` applies because §1862(a)(1)'s reasonable-and-necessary standard is named as the framework the determination applies, which is the S81 B2 test, not supporting authority for a separate criterion.
+- **Zero codes, modifiers, code groups, credentials, settings.** 1 benefit category (Prosthetic Devices, reuse).
+- **Concepts: 8 links, 6 mints + 2 reuse.** Mints `conceptElectricalContinenceAid`, `conceptPlasticPlug`, `conceptAnalCanal`, `conceptAnalMusculature`, `conceptSmallPortableGenerator` (B3), `conceptIncontinence`. Reuse `conceptImplantedElectrode` (plurality-only) and `conceptElectricalCurrent`.
+- **Zero policy references, and that is an accurate zero.** The document has no Cross Reference section and names no other policy document, so nothing was minted or linked and `referencesPolicy` stays at **1112**. Recorded explicitly because an absent reference set and a missed one look identical in the graph — contrast NCD 130.4, which produced three links the same session.
+- **Source-text note.** The PDF's text layer renders the section sign as U+FFFD. That is a `pdftotext` artifact, not content: `r2` carries **§1862(a)(1)** correctly, asserted at emit time behind an assertion that no replacement character reaches the emitted block, and verified post-parse. Bears on §4 item 23.
+- **Verification.** +74 triples with the predicate histogram checked: both rules carry exactly one `gem:ruleDescription` and zero `gem:description`; `r2` carries both its rule types. TTL clean — 59,668 CRLF, **0 lone-LF**, 0 tabs, terminal `.\r\n` intact.
+
 ## §3 — Decisions (S260)
 
 Thirteen borderlines, each Tom-confirmed individually.
@@ -107,7 +120,7 @@ Thirteen borderlines, each Tom-confirmed individually.
 
 Items 1–31 carry from S259 **unchanged in substance**; the transport port touched no graph state, so every graph-dependent item stands exactly as S259 left it. Renumbered items below are new or materially updated.
 
-1. **Cadence checkpoint — DUE NOW, unrun.** `policies_processed` reached **160** with the NCD 130.4 extraction (§2(f)), which fires the 20-policy review: deferred proposals, SKILL.md / memory-edit curation, schema and worklist health, the reference-stub backlog, promotion of concept groups seen in 3+ policies, and the active-reminders bundle. It was **not** run in S260 — the extraction was generated first by agreement, leaving the checkpoint as S261's first business. The schema-health usage census within it is **closure-aware**: a term's usage is its own assertions plus every descendant's, and a parent reading zero direct assertions is expected rather than a retirement candidate (see the S197 `deferred_proposals[92]` near-miss).
+1. **Cadence checkpoint — DUE, unrun, and now one past the boundary.** `policies_processed` crossed **160** at NCD 130.4 (§2(f)) and stands at **161** after NCD 230.15 (§2(g)). The boundary fired the 20-policy review: deferred proposals, SKILL.md / memory-edit curation, schema and worklist health, the reference-stub backlog, promotion of concept groups seen in 3+ policies, and the active-reminders bundle. It was **not** run in S260 — flagged at the boundary and again before the second extraction, with Tom electing to proceed both times, leaving the checkpoint as S261's first business. The schema-health usage census within it is **closure-aware**: a term's usage is its own assertions plus every descendant's, and a parent reading zero direct assertions is expected rather than a retirement candidate (see the S197 `deferred_proposals[92]` near-miss).
 2. **LCD/Article V1-date research — 18 candidates (`[107]` remainder).** Unchanged: `a52467, a52492, a52494, a52495, a52510, a52514, a52517, a52519, a54969, a55426, a57115, a58075, lcd33612, lcd33718, lcd33797, lcd33800, lcd33923, lcd36524`. Blocked on Tom's renditions. `policy_effective_date_v1` INFO = **24**.
 3. **CIM stub source availability — 42.** Unchanged. `tn33CIM` (S259) and `tn159CIM` (S249) both expected to stay Source-pending.
 4. **Possible era-gate mistokens among pre-crystallization transmittals (S236); CIM ceiling 169 (S247).** Pending Tom.
@@ -127,13 +140,13 @@ Items 1–31 carry from S259 **unchanged in substance**; the transport port touc
 
 ### §5.1 — Bootstrap (auto-authorized)
 
-From the canonical directory, read the latest handoff in `handoffs/`, then run `python gem_audit.py --files-dir . --autofix` immediately on the first prompt, without asking. Dependencies are in `requirements.txt` at the repo root. Expect a clean run with **no autofix write**, two INFO (`source_availability_unverified` **42**; `policy_effective_date_v1` **24**), plus the always-on **`[NCD CENSUS]`** block (Active 128 · Stubs 2 · Retired 10 · Deleted 5 · Unknown 0 · Total 145). Any RED is a halt; surface YELLOW for decision.
+From the canonical directory, read the latest handoff in `handoffs/`, then run `python gem_audit.py --files-dir . --autofix` immediately on the first prompt, without asking. Dependencies are in `requirements.txt` at the repo root. Expect a clean run with **no autofix write**, two INFO (`source_availability_unverified` **42**; `policy_effective_date_v1` **24**), plus the always-on **`[NCD CENSUS]`** block (Active 129 · Stubs 2 · Retired 10 · Deleted 5 · Unknown 0 · Total 146). Any RED is a halt; surface YELLOW for decision.
 
 **Fifteen simultaneous `hash_verify` YELLOWs** reading "present but not listed in handoff §1 table" is one cause, not fifteen problems: no handoff was resolved. `handoff_drift` and the `empirical_counts` session marker are silently inert in that state. Fix resolution first. A `handoff_resolution` YELLOW (item 34) means handoffs exist in both `handoffs/` and the flat canonical directory — move or delete the flat copies.
 
 ### §5.2 — First action
 
-**Run the cadence checkpoint.** It is due and unrun (§4 item 1) — `policies_processed` is 160. Do this before taking another policy, so the review reflects the corpus at the boundary rather than trailing it.
+**Run the cadence checkpoint.** It is due and unrun (§4 item 1) — `policies_processed` is **161**, one past the boundary. Do this before taking another policy; it is already trailing, and each further extraction widens the gap between the review and the corpus it is meant to review.
 
 After that, no forced order: process the next policy; promote a `planPromote` stub through its own Plan/Generate cycle (items 5–13, 21, incl. `gemi:ncd20.4` and `gemi:ncd210.3`); or advance a §4 item — 35 and 36 are both cheap. Note that **reprocessing is closed** until every NCD is processed (§5.3), so items that would revisit a finished policy are not available.
 
