@@ -7026,6 +7026,26 @@ def run_self_test() -> int:
 
 
 def main() -> int:
+    # The emitter owns the emitted bytes (SKILL.md §Session Close), and stdout is
+    # emitted bytes like any other. Findings carry '->' arrows, section signs and
+    # Greek letters; under a non-UTF-8 locale (cp1252 on a default Windows box)
+    # emit_pretty dies on the first one with UnicodeEncodeError.
+    #
+    # The failure this prevents is worse than a plain crash: it fires AFTER the
+    # "all checks GREEN" line is printed, and it exits 1 -- which this script's
+    # own contract defines as "any YELLOW". A crash therefore reads as a drift
+    # finding. --json was immune (json.dumps defaults to ensure_ascii=True), so
+    # the healthy-looking path was the one nobody bootstraps with.
+    #
+    # PYTHONUTF8=1 in .claude/settings.json masked this until S260 removed it.
+    # An env var is not a fix: it covers only sessions launched through that
+    # settings file, on this machine. Owning the stream here covers every caller.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass  # already-wrapped or non-reconfigurable stream; not fatal
+
     p = argparse.ArgumentParser(description="GEM canonical-file drift audit.")
     p.add_argument("--files-dir", type=Path, default=Path("."),
                    help="Directory containing the canonical files (read-only OK).")
