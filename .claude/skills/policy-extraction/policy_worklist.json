@@ -2,7 +2,7 @@
   "metadata": {
     "created": "2026-05-28",
     "last_updated": "2026-08-04 (S260)",
-    "policies_processed": 161,
+    "policies_processed": 162,
     "uncoded_clinical_concepts_status": "retired 2026-05-23 -- superseded by gem:ClinicalConcept individuals in GEM_policy_instances.ttl. No new entries are added. (Prior historical entries discarded at 2026-05-28 fresh-start reset.)",
     "checkpoint_cadence": 20,
     "architecture_note": "Architecture revision 2026-06-08 (Session 45): worklist now tracks documents NOT YET in the graph. Entries persisted in the graph (as stubs or fully-extracted) can be removed. See worklist_schema.md for updated semantics. Pre-S45 worklist had 122 related_policies; post-S45 has 25 (the others migrated to graph)."

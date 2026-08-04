@@ -7,17 +7,17 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | File | md5 | size | S260 |
 | :--- | :--- | :--- | :--- |
 | `GEM_ontology.ttl` | `5a77000e27e2ce03d6e2e0596e716934` | 340257 |  |
-| `GEM_policy_instances.ttl` | `b6f4cb44d1c2b21015145f3eebcfdf1f` | 5598468 | **M** |
+| `GEM_policy_instances.ttl` | `06098b6b8bc2419c6696902c5c5ab600` | 5658444 | **M** |
 | `GEM_code_group_instances.ttl` | `10a70c01175dcf714a4bd8307bd07eeb` | 25942 |  |
 | `cpt.ttl` | `351aa816b978ec63a6800feb50bfb5c4` | 35223 |  |
-| `SKILL.md` | `54303c5fd1a115f60d0ccb8595c1a9d1` | 276880 | **M** |
+| `SKILL.md` | `44ffdf07fc3dca104c6f0439b461586f` | 276880 | **M** |
 | `gem_reference.md` | `4ddd97d8b96dec2b4aff8e0318376c46` | 120152 |  |
-| `gem_rule_categories.md` | `3187c128d8098b89ae5de10f898045a6` | 1378330 | **M** |
-| `gem_edit_log.md` | `fc26b62f2a9eff2dd824eec3560e308b` | 90851 | **M** |
+| `gem_rule_categories.md` | `a924830dfc7b1cf3f4da349980629cc0` | 1385601 | **M** |
+| `gem_edit_log.md` | `96109d783a42205a074b0585d088e57e` | 92814 | **M** |
 | `gem_structured_rule_guide.md` | `5dc562fdf25cdd7a492969be2b82fee5` | 60817 |  |
 | `gem_turtle_style_guide.md` | `1983054a2c8a5601ed9cbaa2c624b74f` | 24849 |  |
 | `manifest_format.md` | `24d134579244454795e39b2be1ce80d3` | 26227 |  |
-| `policy_worklist.json` | `0be4f75b95b0e79413985644d03a56ed` | 322762 | **M** |
+| `policy_worklist.json` | `7c4256ce6cec5eae143d702aa6593b4b` | 322762 | **M** |
 | `gem_llm_annotations.json` | `ae89620445889e7137e2bdc5ba4cd669` | 7213 |  |
 | `worklist_schema.md` | `3f012027bb2d328e229042ed2e89b5d9` | 16002 |  |
 | `gem_audit.py` | `73b3311387189997186edc1375fe1fb8` | 315654 | **M** |
@@ -28,7 +28,7 @@ S260 ran in **three distinct parts**, and only the first was in the session brie
 
 **Half one — Stage B, the Claude Chat → Claude Code port of the `policy-extraction` skill** (§2(a)–(e)). A transport-layer migration plus three `gem_audit.py` corrections, the `sources/` population, and **no graph change**: through the end of §2(e), `GEM_ontology.ttl`, `GEM_policy_instances.ttl`, `GEM_code_group_instances.ttl`, `cpt.ttl`, `policy_worklist.json`, `gem_llm_annotations.json`, `gem_reference.md`, `gem_rule_categories.md`, `gem_edit_log.md`, `gem_structured_rule_guide.md`, `gem_turtle_style_guide.md`, `manifest_format.md` and `worklist_schema.md` were all byte-identical to S259. Run as a normal two-turn pass: manifest first, thirteen borderlines resolved one at a time, then Generate.
 
-**Half two — two extractions** (§2(f) and §2(g)), both requested by Tom after the port closed, both single-version longstanding non-coverage NCDs, both read from the freshly-populated `sources/` library. This is where the graph moved: `policies_processed` **159 → 161**, `referencesPolicy` **1109 → 1112**, census **Active 127 → 129, Total 144 → 146**. `revisesPolicy` unchanged at **239**, `revisedByPolicy` at **0**. Each carries its own `gem_rule_categories.md` section and `gem_edit_log.md` line, authored in the same Generate turn as its triples.
+**Half two — three extractions** (§2(f), §2(g), §2(i)), all requested by Tom after the port closed, all read from the `sources/` library. This is where the graph moved: `policies_processed` **159 → 162**, `referencesPolicy` **1109 → 1119**, `revisesPolicy` **239 → 240**, census **Active 127 → 130, Total 144 → 147**. `revisedByPolicy` stays **0**. The first two were small single-version non-coverage NCDs; the third, NCD 20.15, is the corpus's largest NCD extraction to date. Each carries its own `gem_rule_categories.md` section and `gem_edit_log.md` line, authored in the same Generate turn as its triples.
 
 **Half three — the 20-policy cadence checkpoint** (§2(h)), run at **161** after Tom elected to take both extractions first. Review only, no graph or schema change: zero genuine retirement candidates, no concept group at 3+ policies, and one dangling agenda item resolved (the active-reminders bundle). It surfaced four decisions, now §4 items 37–40. **Next checkpoint due at 180.**
 
@@ -117,6 +117,20 @@ Run at `policies_processed` **161**, one past the boundary. Review only; no grap
 - **Graph shape.** NCD 146 · LCD 64 · Article 68 · Transmittal 324 · CR 133 · NCA 108 · manual chapter 20 · PM 20; rules **1,879**, concepts **2,790**, credentials 120, settings 26, benefit categories 76, PolicyGroups 28, PolicyCodingRule 1. 51,061 triples. Workflow `planDone` 161 · `planPromote` 706 · `planNone` 16.
 - **The active-reminders bundle did not survive the port, and is now resolved.** The checkpoint agenda named it in two places and nothing in the file set defined it. It was the chat-era persistent-memory set — standing instructions carried between sessions and curated at each checkpoint — with no Claude Code equivalent; `CLAUDE.md` is the successor surface (Tom, relaying Claude Chat). Both agenda lists now read **"CLAUDE.md's standing rules"**, and the S91 borderline section's *"the prior memory-#16 one-at-a-time format"* now reads *"the prior one-at-a-time format"*. Sibling citation still outstanding: `memory edit #13` survives in §Session Close's historical parenthetical, where it reads as a pointer a reader cannot follow (§4 item 40).
 
+### (i) NCD 20.15 extracted — Electrocardiographic Services
+
+Third extraction of the session and the largest NCD in the corpus: `gemi:ncd20.15` (ncdid=179), **54 rules, +740 triples**. Two-version policy, and the second two-version rule set the project has handled after NCD 240.1 (S151). Eight borderlines, all Tom-confirmed.
+
+- **Not from the queue.** NCD 20.15 was absent from the graph entirely — not a `planPromote` stub, not cited by anything extracted. It reached the corpus only because Tom named it. **That is §4 item 41 demonstrated rather than argued:** the NCD queue and the NCD corpus are different things, and the queue reaching zero will not mean the corpus is complete. The two queued stubs (NCD 20.4, NCD 210.3) are still outstanding.
+- **Three source renditions:** both versions plus the linked framework diagram.
+- **The framework (B1).** V2's §C.6 and §D both turn on an *Electrocardiographic Services Framework* that renders as a bare heading with no content in the V2 PDF; `pdfimages` reported zero images, so it was not a rasterized table. Tom supplied the linked diagram separately. It resolves to a three-axis taxonomy corroborating V2's prose exactly. Categories minted **flat, no `skos:broader`**; no rule minted for the diagram itself.
+- **Retention (B2, strict S151).** V2 is a comprehensive rewrite whose revision-history entry reports only a reorganisation and names no removed factor, so **20 V1 factors are retained** — most substantively the **§20.8.1 pacemaker limitation**, which is also why `gemi:ncd20.8.1` is in the reference set. V1 descriptive background retained as concepts only (S152).
+- **Dates.** Effective **1985-06-01**, V1's, per the S192 anchor. **No implementation date** — V2 publishes 12/10/2004 but V1 publishes none, so the triple is dropped rather than inheriting the current version's. `policy_effective_date_v1` INFO **24 → 25**: the values are V1's and correct, but the check keys off `KNOWN_V1_DATES`, so NCD 20.15 queues until its V1 dates are recorded there. A mid-session claim that the INFO would stay at 24 was wrong and is corrected here.
+- **Content.** 52 concept links (41 mints, 11 reuse); 14 credential links (5 mints, 9 reuse); 7 policy references + 1 change-request reference; 3 new stubs (`cag00158N`, `tn26NCD`, `cr3590`). `tn26NCD` takes `revisesPolicy` under the S151 transmittal-edge rule. **0 codes, 0 modifiers, 0 settings, 0 code groups.** `gem:delegatesCoverageTo` on r25 and r34 (corpus 45 → 47).
+- **Rule count +2 against the manifest** (52 → 54): the event-monitor material resolved into three rules, not one. Recorded, not absorbed.
+- **Generate-time borderline outside B3–B8:** `credentialCarrier` and `credentialIntermediary` minted for V1 `r47`'s named administrative actors, following corpus precedent that administrative actors take credential individuals. Flagged for review.
+- **Verification.** +740 triples with the predicate histogram checked: all 54 rules carry exactly one `gem:ruleDescription` and zero `gem:description`. TTL clean — 60,522 CRLF, **0 lone-LF**, 0 tabs.
+
 ## §3 — Decisions (S260)
 
 Thirteen borderlines, each Tom-confirmed individually.
@@ -158,7 +172,7 @@ Items 1–31 carry from S259 **unchanged in substance**; the transport port touc
 
 ### §5.1 — Bootstrap (auto-authorized)
 
-From the canonical directory, read the latest handoff in `handoffs/`, then run `python gem_audit.py --files-dir . --autofix` immediately on the first prompt, without asking. Dependencies are in `requirements.txt` at the repo root. Expect a clean run with **no autofix write**, two INFO (`source_availability_unverified` **42**; `policy_effective_date_v1` **24**), plus the always-on **`[NCD CENSUS]`** block (Active 129 · Stubs 2 · Retired 10 · Deleted 5 · Unknown 0 · Total 146). Any RED is a halt; surface YELLOW for decision.
+From the canonical directory, read the latest handoff in `handoffs/`, then run `python gem_audit.py --files-dir . --autofix` immediately on the first prompt, without asking. Dependencies are in `requirements.txt` at the repo root. Expect a clean run with **no autofix write**, two INFO (`source_availability_unverified` **42**; `policy_effective_date_v1` **24**), plus the always-on **`[NCD CENSUS]`** block (Active 130 · Stubs 2 · Retired 10 · Deleted 5 · Unknown 0 · Total 147). Any RED is a halt; surface YELLOW for decision.
 
 **Fifteen simultaneous `hash_verify` YELLOWs** reading "present but not listed in handoff §1 table" is one cause, not fifteen problems: no handoff was resolved. `handoff_drift` and the `empirical_counts` session marker are silently inert in that state. Fix resolution first. A `handoff_resolution` YELLOW (item 34) means handoffs exist in both `handoffs/` and the flat canonical directory — move or delete the flat copies.
 
