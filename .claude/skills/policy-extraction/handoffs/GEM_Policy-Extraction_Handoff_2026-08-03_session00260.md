@@ -7,20 +7,20 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | File | md5 | size | S260 |
 | :--- | :--- | :--- | :--- |
 | `GEM_ontology.ttl` | `5a77000e27e2ce03d6e2e0596e716934` | 340257 |  |
-| `GEM_policy_instances.ttl` | `0b9c18522d3f9007bacaa66904966a8f` | 5658555 | **M** |
+| `GEM_policy_instances.ttl` | `6c68153a7cafa3de01db2aca9821d181` | 5664290 | **M** |
 | `GEM_code_group_instances.ttl` | `10a70c01175dcf714a4bd8307bd07eeb` | 25942 |  |
 | `cpt.ttl` | `351aa816b978ec63a6800feb50bfb5c4` | 35223 |  |
-| `SKILL.md` | `44ffdf07fc3dca104c6f0439b461586f` | 276880 | **M** |
+| `SKILL.md` | `742c1b3d88ab7e359b9bf41326a38159` | 276880 | **M** |
 | `gem_reference.md` | `4ddd97d8b96dec2b4aff8e0318376c46` | 120152 |  |
-| `gem_rule_categories.md` | `e12acf9b3e5f87af935c884b887f2fc7` | 1385811 | **M** |
-| `gem_edit_log.md` | `96109d783a42205a074b0585d088e57e` | 92814 | **M** |
+| `gem_rule_categories.md` | `91adc9e28f00057de4c740b833a7abbc` | 1390132 | **M** |
+| `gem_edit_log.md` | `fd63bcc8e07ca997d30d30062fb894ce` | 94593 | **M** |
 | `gem_structured_rule_guide.md` | `5dc562fdf25cdd7a492969be2b82fee5` | 60817 |  |
 | `gem_turtle_style_guide.md` | `1983054a2c8a5601ed9cbaa2c624b74f` | 24849 |  |
 | `manifest_format.md` | `24d134579244454795e39b2be1ce80d3` | 26227 |  |
-| `policy_worklist.json` | `7c4256ce6cec5eae143d702aa6593b4b` | 322762 | **M** |
+| `policy_worklist.json` | `e8d57838e72b3ae9ef724f58893c0833` | 322762 | **M** |
 | `gem_llm_annotations.json` | `ae89620445889e7137e2bdc5ba4cd669` | 7213 |  |
 | `worklist_schema.md` | `3f012027bb2d328e229042ed2e89b5d9` | 16002 |  |
-| `gem_audit.py` | `eaf346f67fdc59e3b0a44e2e4c4b0f0b` | 315692 | **M** |
+| `gem_audit.py` | `a735d370b64eceb92afe0250f169efab` | 315730 | **M** |
 
 ## §2 — Work completed in S260
 
@@ -28,7 +28,7 @@ S260 ran in **three distinct parts**, and only the first was in the session brie
 
 **Half one — Stage B, the Claude Chat → Claude Code port of the `policy-extraction` skill** (§2(a)–(e)). A transport-layer migration plus three `gem_audit.py` corrections, the `sources/` population, and **no graph change**: through the end of §2(e), `GEM_ontology.ttl`, `GEM_policy_instances.ttl`, `GEM_code_group_instances.ttl`, `cpt.ttl`, `policy_worklist.json`, `gem_llm_annotations.json`, `gem_reference.md`, `gem_rule_categories.md`, `gem_edit_log.md`, `gem_structured_rule_guide.md`, `gem_turtle_style_guide.md`, `manifest_format.md` and `worklist_schema.md` were all byte-identical to S259. Run as a normal two-turn pass: manifest first, thirteen borderlines resolved one at a time, then Generate.
 
-**Half two — three extractions** (§2(f), §2(g), §2(i)), all requested by Tom after the port closed, all read from the `sources/` library. This is where the graph moved: `policies_processed` **159 → 162**, `referencesPolicy` **1109 → 1119**, `revisesPolicy` **239 → 240**, census **Active 127 → 130, Total 144 → 147**. `revisedByPolicy` stays **0**. The first two were small single-version non-coverage NCDs; the third, NCD 20.15, is the corpus's largest NCD extraction to date. Each carries its own `gem_rule_categories.md` section and `gem_edit_log.md` line, authored in the same Generate turn as its triples.
+**Half two — four extractions** (§2(f), §2(g), §2(i), §2(j)), all requested by Tom after the port closed, all read from the `sources/` library. This is where the graph moved: `policies_processed` **159 → 163**, `referencesPolicy` **1109 → 1121**, `revisesPolicy` **239 → 242**, census **Active 127 → 130, Retired 10 → 11, Total 144 → 148**. `revisedByPolicy` stays **0**. Two small single-version non-coverage NCDs; NCD 20.15, the corpus's largest NCD extraction to date at 54 rules; and NCD 190.4, its first retirement-lifecycle extraction. Each carries its own `gem_rule_categories.md` section and `gem_edit_log.md` line, authored in the same Generate turn as its triples.
 
 **Half three — the 20-policy cadence checkpoint** (§2(h)), run at **161** after Tom elected to take both extractions first. Review only, no graph or schema change: zero genuine retirement candidates, no concept group at 3+ policies, and one dangling agenda item resolved (the active-reminders bundle). It surfaced four decisions, now §4 items 37–40. **Next checkpoint due at 180.**
 
@@ -131,6 +131,17 @@ Third extraction of the session and the largest NCD in the corpus: `gemi:ncd20.1
 - **Generate-time borderline outside B3–B8:** `credentialCarrier` and `credentialIntermediary` minted for V1 `r47`'s named administrative actors, following corpus precedent that administrative actors take credential individuals. Flagged for review.
 - **Verification.** +740 triples with the predicate histogram checked: all 54 rules carry exactly one `gem:ruleDescription` and zero `gem:description`. TTL clean — 60,522 CRLF, **0 lone-LF**, 0 tabs.
 
+### (j) NCD 190.4 extracted — Electron Microscope (RETIRED)
+
+Fourth extraction of the session: `gemi:ncd190.4` (ncdid=182), **1 rule, +26 triples**. Three versions — the first three-version policy since NCD 240.1 (S151) — and the corpus's **first retirement-lifecycle extraction** as such. Five borderlines, all Tom-confirmed. `gemi:ncd160.6` is a near-exact structural twin and served as the template.
+
+- **Also not from the queue.** Like NCD 20.15, absent from the graph entirely before Tom named it — the second demonstration in one session that the NCD queue and the NCD corpus differ (§4 item 41).
+- **B1 — retired-in-place, not `_DELETED`.** The verb changes at the *same* effective date: V2 says the NCD is **deleted**, V3 says **retired**. CMS revised its own wording and V3 governs. `_DELETED` is for sections a transmittal removed outright (0 rules, `isInEffect false`, `planNone`, no version); NCD 190.4 still publishes a live V3 page with a version, so it takes the **bare URI** with `isInEffect true` — which `ncd_census` requires to corroborate the `- RETIRED` marker.
+- **B2 — V1's coverage content removed, not retained.** V2 **reports** the deletion of the whole NCD, so S151 retention does not fire and the S152 corollary takes the concepts with the rules: **0 retained rules, 0 concepts**. **The exact mirror of NCD 20.15 the same session**, where a revision history reporting only a reorganisation caused 20 V1 factors to be retained. The two together are a clean worked pair for the reported-versus-silent distinction.
+- **B5 — 0 new stubs.** NCD 190.4 was retired by the same two instruments as `ncd160.6`, both already in the graph: `gem:revisesPolicy gemi:ncd190.4` added to each (`tn181NCD` 1 → 2, `tn11892NCD` 8 → 9), with the citing-side reciprocal on the policy.
+- **Dates.** Effective **1966-01-01** (V1's, longstanding-NCD Other-Versions read). **No implementation date** — V2 and V3 both publish one, V1 does not, so S192 drops the triple.
+- **Verification.** +26 triples, predicate histogram checked; the single rule carries exactly one `gem:ruleDescription` and zero `gem:description`. TTL clean — 60,554 CRLF, **0 lone-LF**, 0 tabs.
+
 ## §3 — Decisions (S260)
 
 Thirteen borderlines, each Tom-confirmed individually.
@@ -172,7 +183,7 @@ Items 1–31 carry from S259 **unchanged in substance**; the transport port touc
 
 ### §5.1 — Bootstrap (auto-authorized)
 
-From the canonical directory, read the latest handoff in `handoffs/`, then run `python gem_audit.py --files-dir . --autofix` immediately on the first prompt, without asking. Dependencies are in `requirements.txt` at the repo root. Expect a clean run with **no autofix write**, two INFO (`source_availability_unverified` **42**; `policy_effective_date_v1` **24**), plus the always-on **`[NCD CENSUS]`** block (Active 130 · Stubs 2 · Retired 10 · Deleted 5 · Unknown 0 · Total 147). Any RED is a halt; surface YELLOW for decision.
+From the canonical directory, read the latest handoff in `handoffs/`, then run `python gem_audit.py --files-dir . --autofix` immediately on the first prompt, without asking. Dependencies are in `requirements.txt` at the repo root. Expect a clean run with **no autofix write**, two INFO (`source_availability_unverified` **42**; `policy_effective_date_v1` **24**), plus the always-on **`[NCD CENSUS]`** block (Active 130 · Stubs 2 · Retired 11 · Deleted 5 · Unknown 0 · Total 148). Any RED is a halt; surface YELLOW for decision.
 
 **Fifteen simultaneous `hash_verify` YELLOWs** reading "present but not listed in handoff §1 table" is one cause, not fifteen problems: no handoff was resolved. `handoff_drift` and the `empirical_counts` session marker are silently inert in that state. Fix resolution first. A `handoff_resolution` YELLOW (item 34) means handoffs exist in both `handoffs/` and the flat canonical directory — move or delete the flat copies.
 
