@@ -7,12 +7,12 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | File | md5 | size | S260 |
 | :--- | :--- | :--- | :--- |
 | `GEM_ontology.ttl` | `5a77000e27e2ce03d6e2e0596e716934` | 340257 |  |
-| `GEM_policy_instances.ttl` | `06098b6b8bc2419c6696902c5c5ab600` | 5658444 | **M** |
+| `GEM_policy_instances.ttl` | `0b9c18522d3f9007bacaa66904966a8f` | 5658555 | **M** |
 | `GEM_code_group_instances.ttl` | `10a70c01175dcf714a4bd8307bd07eeb` | 25942 |  |
 | `cpt.ttl` | `351aa816b978ec63a6800feb50bfb5c4` | 35223 |  |
 | `SKILL.md` | `44ffdf07fc3dca104c6f0439b461586f` | 276880 | **M** |
 | `gem_reference.md` | `4ddd97d8b96dec2b4aff8e0318376c46` | 120152 |  |
-| `gem_rule_categories.md` | `a924830dfc7b1cf3f4da349980629cc0` | 1385601 | **M** |
+| `gem_rule_categories.md` | `e12acf9b3e5f87af935c884b887f2fc7` | 1385811 | **M** |
 | `gem_edit_log.md` | `96109d783a42205a074b0585d088e57e` | 92814 | **M** |
 | `gem_structured_rule_guide.md` | `5dc562fdf25cdd7a492969be2b82fee5` | 60817 |  |
 | `gem_turtle_style_guide.md` | `1983054a2c8a5601ed9cbaa2c624b74f` | 24849 |  |
@@ -20,7 +20,7 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | `policy_worklist.json` | `7c4256ce6cec5eae143d702aa6593b4b` | 322762 | **M** |
 | `gem_llm_annotations.json` | `ae89620445889e7137e2bdc5ba4cd669` | 7213 |  |
 | `worklist_schema.md` | `3f012027bb2d328e229042ed2e89b5d9` | 16002 |  |
-| `gem_audit.py` | `73b3311387189997186edc1375fe1fb8` | 315654 | **M** |
+| `gem_audit.py` | `eaf346f67fdc59e3b0a44e2e4c4b0f0b` | 315692 | **M** |
 
 ## §2 — Work completed in S260
 
@@ -125,7 +125,7 @@ Third extraction of the session and the largest NCD in the corpus: `gemi:ncd20.1
 - **Three source renditions:** both versions plus the linked framework diagram.
 - **The framework (B1).** V2's §C.6 and §D both turn on an *Electrocardiographic Services Framework* that renders as a bare heading with no content in the V2 PDF; `pdfimages` reported zero images, so it was not a rasterized table. Tom supplied the linked diagram separately. It resolves to a three-axis taxonomy corroborating V2's prose exactly. Categories minted **flat, no `skos:broader`**; no rule minted for the diagram itself.
 - **Retention (B2, strict S151).** V2 is a comprehensive rewrite whose revision-history entry reports only a reorganisation and names no removed factor, so **20 V1 factors are retained** — most substantively the **§20.8.1 pacemaker limitation**, which is also why `gemi:ncd20.8.1` is in the reference set. V1 descriptive background retained as concepts only (S152).
-- **Dates.** Effective **1985-06-01**, V1's, per the S192 anchor. **No implementation date** — V2 publishes 12/10/2004 but V1 publishes none, so the triple is dropped rather than inheriting the current version's. `policy_effective_date_v1` INFO **24 → 25**: the values are V1's and correct, but the check keys off `KNOWN_V1_DATES`, so NCD 20.15 queues until its V1 dates are recorded there. A mid-session claim that the INFO would stay at 24 was wrong and is corrected here.
+- **Dates.** Effective **1985-06-01**, V1's, per the S192 anchor. **No implementation date** — V2 publishes 12/10/2004 but V1 publishes none, so the triple is dropped rather than inheriting the current version's. `policy_effective_date_v1` INFO momentarily **24 → 25**: the values are V1's and correct, but the check keys off `KNOWN_V1_DATES`, so any `policyVersion > 1` policy queues until its dates are recorded there. **`"ncd20.15": ("1985-06-01", None)` was added to `KNOWN_V1_DATES` in the same session (Tom), returning the INFO to 24.** A mid-session claim that the INFO would simply stay at 24 was wrong; it took this edit to make it true.
 - **Content.** 52 concept links (41 mints, 11 reuse); 14 credential links (5 mints, 9 reuse); 7 policy references + 1 change-request reference; 3 new stubs (`cag00158N`, `tn26NCD`, `cr3590`). `tn26NCD` takes `revisesPolicy` under the S151 transmittal-edge rule. **0 codes, 0 modifiers, 0 settings, 0 code groups.** `gem:delegatesCoverageTo` on r25 and r34 (corpus 45 → 47).
 - **Rule count +2 against the manifest** (52 → 54): the event-monitor material resolved into three rules, not one. Recorded, not absorbed.
 - **Generate-time borderline outside B3–B8:** `credentialCarrier` and `credentialIntermediary` minted for V1 `r47`'s named administrative actors, following corpus precedent that administrative actors take credential individuals. Flagged for review.
