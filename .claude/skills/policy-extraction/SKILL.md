@@ -1080,7 +1080,7 @@ The user makes the call that a policy is out of domain — surface it as a Turn-
 
 ### Borderline handling: record-and-proceed with an end-of-policy decision tree (S91)
 
-Established Session 91. This **supersedes per-borderline approval gating wherever it appears** — Turn 1 step 4's per-step "Stop. Wait for user approval," the "one question at a time" approval-conversation note above, the "surface it as a Turn-1 question" framing in *The "reviewed, no action taken" outcome*, and the prior memory-#16 one-at-a-time format. Everything else is unchanged: the two-turn structure, the manifest, the Plan/Generate context separation, the Gate Hard-Stop Rule, and the requirement that each borderline carry a concrete example (real URI, or clearly-labeled prospective URI). What changes is *when and how* borderlines are approved — at end-of-policy, in one batch, rather than per-step.
+Established Session 91. This **supersedes per-borderline approval gating wherever it appears** — Turn 1 step 4's per-step "Stop. Wait for user approval," the "one question at a time" approval-conversation note above, the "surface it as a Turn-1 question" framing in *The "reviewed, no action taken" outcome*, and the prior one-at-a-time format. Everything else is unchanged: the two-turn structure, the manifest, the Plan/Generate context separation, the Gate Hard-Stop Rule, and the requirement that each borderline carry a concrete example (real URI, or clearly-labeled prospective URI). What changes is *when and how* borderlines are approved — at end-of-policy, in one batch, rather than per-step.
 
 A **decision point** is each genuine borderline: capture-vs-drop, ruleType choice, granularity split, schema / new-`gem:RuleType` mint, or domain-fit (out-of-domain / deliberate-zero). During extraction Claude does **not** pause at each one. For each, Claude evaluates the best course against established guidance, **records** its recommendation with a concrete example and short rationale, and **proceeds** to the next step.
 
@@ -1130,7 +1130,7 @@ If any answer is NO → flag prominently, explain, offer to redo. (A NO on "docu
 
 ## Checkpoint Cadence
 
-Process policies **one at a time**. The first-batch dependency order — NCD 240.2 → LCD L33797 → Article A52514 — has been completed; subsequent policies are drawn from the worklist's related-policies list. Each policy yields some structured data and adds more policies to the worklist. **Every 20 policies, stop for a full review**: schema health, worklist size, deferred-proposal backlog, promotion of deferred concept groups seen in 3+ policies, the active-reminders bundle, and (where applicable) a decision on batch size for the remaining work. The 20-policy cadence is recurring, not a one-time milestone; the user may adjust the cadence at any time. (Recurring framing confirmed 2026-06-05, Session 40.)
+Process policies **one at a time**. The first-batch dependency order — NCD 240.2 → LCD L33797 → Article A52514 — has been completed; subsequent policies are drawn from the worklist's related-policies list. Each policy yields some structured data and adds more policies to the worklist. **Every 20 policies, stop for a full review**: schema health, worklist size, deferred-proposal backlog, promotion of deferred concept groups seen in 3+ policies, CLAUDE.md's standing rules, and (where applicable) a decision on batch size for the remaining work. The 20-policy cadence is recurring, not a one-time milestone; the user may adjust the cadence at any time. (Recurring framing confirmed 2026-06-05, Session 40.)
 
 ---
 
@@ -1194,7 +1194,7 @@ When promoting a refinement, place it correctly:
 
 Session-specific state (progress, queue, current file signatures) stays in the handoff document and is **not** promoted to the skill. A convention carried only in successive handoffs is one missed copy forward from being lost — promote it.
 
-At each 20-policy checkpoint, additionally review: schema health, worklist size, the deferred-proposal backlog, promotion of deferred concept groups seen in 3+ policies, the active-reminders bundle, and (where applicable) a decision on batch size for the remaining work. **The schema-health usage census is closure-aware** — a term's usage is its own assertions plus every descendant's, and a parent reading zero direct assertions is expected rather than a finding; see *an abstract parent reads as unused* in Common Failure Modes before proposing any term for retirement.
+At each 20-policy checkpoint, additionally review: schema health, worklist size, the deferred-proposal backlog, promotion of deferred concept groups seen in 3+ policies, CLAUDE.md's standing rules, and (where applicable) a decision on batch size for the remaining work. **The schema-health usage census is closure-aware** — a term's usage is its own assertions plus every descendant's, and a parent reading zero direct assertions is expected rather than a finding; see *an abstract parent reads as unused* in Common Failure Modes before proposing any term for retirement.
 
 Standing maintenance tasks:
 1. Record any new failure mode in the Common Failure Modes table.

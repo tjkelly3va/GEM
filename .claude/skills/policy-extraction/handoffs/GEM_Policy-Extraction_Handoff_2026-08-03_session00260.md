@@ -10,7 +10,7 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | `GEM_policy_instances.ttl` | `b6f4cb44d1c2b21015145f3eebcfdf1f` | 5598468 | **M** |
 | `GEM_code_group_instances.ttl` | `10a70c01175dcf714a4bd8307bd07eeb` | 25942 |  |
 | `cpt.ttl` | `351aa816b978ec63a6800feb50bfb5c4` | 35223 |  |
-| `SKILL.md` | `ad748bb3bbe482cff84bcb9322e38da9` | 275540 | **M** |
+| `SKILL.md` | `3fd25f38cc9dcb83e981261ba89d2834` | 275527 | **M** |
 | `gem_reference.md` | `4ddd97d8b96dec2b4aff8e0318376c46` | 120152 |  |
 | `gem_rule_categories.md` | `3187c128d8098b89ae5de10f898045a6` | 1378330 | **M** |
 | `gem_edit_log.md` | `fc26b62f2a9eff2dd824eec3560e308b` | 90851 | **M** |
@@ -24,13 +24,13 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 
 ## §2 — Work completed in S260
 
-S260 has **two distinct halves**, and the second was not in the session brief.
+S260 ran in **three distinct parts**, and only the first was in the session brief.
 
 **Half one — Stage B, the Claude Chat → Claude Code port of the `policy-extraction` skill** (§2(a)–(e)). A transport-layer migration plus three `gem_audit.py` corrections, the `sources/` population, and **no graph change**: through the end of §2(e), `GEM_ontology.ttl`, `GEM_policy_instances.ttl`, `GEM_code_group_instances.ttl`, `cpt.ttl`, `policy_worklist.json`, `gem_llm_annotations.json`, `gem_reference.md`, `gem_rule_categories.md`, `gem_edit_log.md`, `gem_structured_rule_guide.md`, `gem_turtle_style_guide.md`, `manifest_format.md` and `worklist_schema.md` were all byte-identical to S259. Run as a normal two-turn pass: manifest first, thirteen borderlines resolved one at a time, then Generate.
 
 **Half two — two extractions** (§2(f) and §2(g)), both requested by Tom after the port closed, both single-version longstanding non-coverage NCDs, both read from the freshly-populated `sources/` library. This is where the graph moved: `policies_processed` **159 → 161**, `referencesPolicy` **1109 → 1112**, census **Active 127 → 129, Total 144 → 146**. `revisesPolicy` unchanged at **239**, `revisedByPolicy` at **0**. Each carries its own `gem_rule_categories.md` section and `gem_edit_log.md` line, authored in the same Generate turn as its triples.
 
-**The cadence checkpoint is DUE and was passed through, not run.** `policies_processed` crossed 160 at NCD 130.4 and stands at **161** after NCD 230.15. The 20-policy review was flagged before the second extraction and Tom elected to proceed; it remains unrun and is S261's first business.
+**Half three — the 20-policy cadence checkpoint** (§2(h)), run at **161** after Tom elected to take both extractions first. Review only, no graph or schema change: zero genuine retirement candidates, no concept group at 3+ policies, and one dangling agenda item resolved (the active-reminders bundle). It surfaced four decisions, now §4 items 37–40. **Next checkpoint due at 180.**
 
 §3 D5's finding still stands for half one: a transport-only session earns no edit-log entry, and the log's own scope plus the S144/S145/S156–S159/S175/S182/S197/S237 precedent is the evidence. Both extractions earn one because they are corpus changes.
 
@@ -104,6 +104,19 @@ Second extraction of the session, `gemi:ncd230.15` (ncdid=234), same shape as §
 - **Source-text note.** The PDF's text layer renders the section sign as U+FFFD. That is a `pdftotext` artifact, not content: `r2` carries **§1862(a)(1)** correctly, asserted at emit time behind an assertion that no replacement character reaches the emitted block, and verified post-parse. Bears on §4 item 23.
 - **Verification.** +74 triples with the predicate histogram checked: both rules carry exactly one `gem:ruleDescription` and zero `gem:description`; `r2` carries both its rule types. TTL clean — 59,668 CRLF, **0 lone-LF**, 0 tabs, terminal `.\r\n` intact.
 
+### (h) 20-policy cadence checkpoint — RUN
+
+Run at `policies_processed` **161**, one past the boundary. Review only; no graph or schema change resulted.
+
+- **Schema health — zero genuine retirement candidates.** 161 `gem:` properties. Four abstract parents read 0 direct assertions and are **expected, not findings**: `coversCondition` (0 direct / **3,252** through descendants), `refersToHCPCSprocedure` (0 / 410), `appliesWhenCode` (0 / 91), `hasAnchoredCodingScope` (0 / 29). The 96 zero-usage terms bucket by cause — 66 claim-substrate (GEM holds no claims), 7 deferred coverage-outcome layer `[72]` (SKILL.md forbids minting them), 2 forward-only inverses whose own `llmInverseNote` states they are entailed and never asserted (`revisedByPolicy`, `changeRequestTransmittedBy`), and a handful of documented forward-compat reservations (`exclusivelyCoversProcedure`, `requiresProcedure`, `appliesWhenCondition`, `supportsUseCase`). **Every zero has a documented reason.**
+- **`deferred_proposals[92]`'s standing trigger fired, on the same false reading it was created from.** `[92]` says revisit *"if still 0-usage at a materially larger corpus"*; the corpus is materially larger, so it fires — and it names `coversCondition` and `refersToHCPCSprocedure`, the two largest abstract parents in the graph. Acting on it would retire a super-property carrying 3,252 inferred triples. Recommendation recorded as §4 item 37: **close `[92]` outright**, because an instance census can neither support nor refute the generalisation a parent exists for.
+- **Checkpoint-method defect found and corrected mid-review (§4 item 38).** The first census pass counted predicate usage in the **instances graph only**, which made all six `llm*` annotation properties read as unused — they are asserted on **schema** subjects. The count was accurate and the question was wrong: the S197 failure mode reproduced by the very review meant to guard against it. Corrected scope is ontology + instances + code groups.
+- **Concept groups seen in 3+ policies: none.** Highest recurrence is **2**, reached by eight groups (`[31]`, `[36]`, `[64]`, `[71]`, `[84]`, `[98]`, `[103]`, `[108]`). No promotion triggered.
+- **Deferred-proposal backlog: 110.** 37 complete · 26 resolved · 33 logged · **12 implemented-not-complete** (the closable set, incl. `[107]`, `[100]`, `[95]`, `[109]`, `[91]`, `[94]`) · 1 approved-unbuilt (`[87]`, parked) · 1 obsolete.
+- **Worklist: 22 entries** (18 processed, 3 pending, 1 deferred) — and **worklist size is no longer the backlog measure**. Since the S131 mint-every-referenced-policy rule, references go straight to the graph as stubs, so the real queue is the **706 `planPromote` stubs against 161 `planDone`**. That ratio appears nowhere in the worklist and is the number worth watching (§4 item 39).
+- **Graph shape.** NCD 146 · LCD 64 · Article 68 · Transmittal 324 · CR 133 · NCA 108 · manual chapter 20 · PM 20; rules **1,879**, concepts **2,790**, credentials 120, settings 26, benefit categories 76, PolicyGroups 28, PolicyCodingRule 1. 51,061 triples. Workflow `planDone` 161 · `planPromote` 706 · `planNone` 16.
+- **The active-reminders bundle did not survive the port, and is now resolved.** The checkpoint agenda named it in two places and nothing in the file set defined it. It was the chat-era persistent-memory set — standing instructions carried between sessions and curated at each checkpoint — with no Claude Code equivalent; `CLAUDE.md` is the successor surface (Tom, relaying Claude Chat). Both agenda lists now read **"CLAUDE.md's standing rules"**, and the S91 borderline section's *"the prior memory-#16 one-at-a-time format"* now reads *"the prior one-at-a-time format"*. Sibling citation still outstanding: `memory edit #13` survives in §Session Close's historical parenthetical, where it reads as a pointer a reader cannot follow (§4 item 40).
+
 ## §3 — Decisions (S260)
 
 Thirteen borderlines, each Tom-confirmed individually.
@@ -120,7 +133,7 @@ Thirteen borderlines, each Tom-confirmed individually.
 
 Items 1–31 carry from S259 **unchanged in substance**; the transport port touched no graph state, so every graph-dependent item stands exactly as S259 left it. Renumbered items below are new or materially updated.
 
-1. **Cadence checkpoint — DUE, unrun, and now one past the boundary.** `policies_processed` crossed **160** at NCD 130.4 (§2(f)) and stands at **161** after NCD 230.15 (§2(g)). The boundary fired the 20-policy review: deferred proposals, SKILL.md / memory-edit curation, schema and worklist health, the reference-stub backlog, promotion of concept groups seen in 3+ policies, and the active-reminders bundle. It was **not** run in S260 — flagged at the boundary and again before the second extraction, with Tom electing to proceed both times, leaving the checkpoint as S261's first business. The schema-health usage census within it is **closure-aware**: a term's usage is its own assertions plus every descendant's, and a parent reading zero direct assertions is expected rather than a retirement candidate (see the S197 `deferred_proposals[92]` near-miss).
+1. **RESOLVED (S260) — cadence checkpoint run at 161.** No longer tracked as due. Full outcome in §2(h); the four decisions it surfaced are items 37–40 below. **Next checkpoint due at 180.**
 2. **LCD/Article V1-date research — 18 candidates (`[107]` remainder).** Unchanged: `a52467, a52492, a52494, a52495, a52510, a52514, a52517, a52519, a54969, a55426, a57115, a58075, lcd33612, lcd33718, lcd33797, lcd33800, lcd33923, lcd36524`. Blocked on Tom's renditions. `policy_effective_date_v1` INFO = **24**.
 3. **CIM stub source availability — 42.** Unchanged. `tn33CIM` (S259) and `tn159CIM` (S249) both expected to stay Source-pending.
 4. **Possible era-gate mistokens among pre-crystallization transmittals (S236); CIM ceiling 169 (S247).** Pending Tom.
@@ -133,6 +146,10 @@ Items 1–31 carry from S259 **unchanged in substance**; the transport port touc
 
 35. **`sources/` gitignore question — raised and deliberately deferred (S260).** Tom asked for `sources/` to be excluded from pushes, then withdrew it pending a decision ("until I decide to ignore the sources directory"), so **the directory remains tracked**. If it is ever adopted, three places assert the opposite and must change **together**: `.gitignore`'s comment block (which explains at length why `sources/` is deliberately *not* ignored), `SKILL.md` §Session Close, and `/gem-close` step 6. Note also that ignoring it means git stops tracking the PDFs entirely — no history, no protection against an overwrite — and that the repo currently has **no remote** while the standing rule is *never push*, so nothing is reaching GitHub today regardless.
 36. **Two `sources/` files differ from their Dropbox originals (S260).** `A58824.pdf` and `NCA CAG-00296R3.pdf` are text-layer in `sources/` and still rasterized in `Dropbox\Projects\HOO2pilot\policies`. Expected, not drift — but a future sync or re-copy from Dropbox would silently reintroduce the rasterized versions.
+37. **Close `deferred_proposals[92]`? (S260 checkpoint, pending Tom.)** `[92]` proposes `gem:coversCondition` and `gem:refersToHCPCSprocedure` as retirement candidates on a **0-usage** reading, with a standing trigger to revisit at a materially larger corpus. That trigger fired at this checkpoint, and the reading is false: both are abstract parents carrying **3,252** and **410** triples through their descendants. Recommendation: **close `[92]` outright** rather than let it re-fire every 20 policies. A parent earns its place by the generalisation it supports, which an instance census can neither evidence nor refute (Tom, S197). Both terms already carry a `gem:llmScopingNote` saying direct assertion is zero by design.
+38. **Record the checkpoint census scope in SKILL.md? (S260, pending Tom.)** The census must count usage across **ontology + instances + code groups**, not instances alone. Counting instances alone makes all six `llm*` annotation properties read as unused, because they are asserted on schema subjects — the S197 failure mode, reproduced during this very checkpoint before being caught. SKILL.md §Iterative Improvement already says the census is closure-aware; it does not say what to count over. One sentence closes it.
+39. **Promote-queue ratio is invisible in the worklist (S260).** **706 `planPromote` stubs against 161 `planDone`.** Since the S131 mint-every-referenced-policy rule, references are minted straight to the graph, so `policy_worklist.json` (22 entries) no longer reflects the backlog and the checkpoint's "worklist size" agenda item measures the wrong thing. Options: retarget that agenda item at the workflow-state counts, or surface the ratio in the audit's INFO tier beside the NCD census. Pending Tom — and bears on the batch-size question, which is now a 706-item question rather than a 22-item one.
+40. **`memory edit #13` still reads as a followable pointer (S260).** §Session Close's historical parenthetical cites it to explain what the pre-port batching rule was for. Now that the chat-era memory set is confirmed to have no Claude Code equivalent (§2(h)), the citation points at something a reader cannot reach. Either gloss it in place ("a chat-era standing instruction, since retired") or drop the clause. Cosmetic; left alone in S260 because Tom's instruction scoped the port edit to three specific sentences.
 
 ---
 
@@ -146,9 +163,9 @@ From the canonical directory, read the latest handoff in `handoffs/`, then run `
 
 ### §5.2 — First action
 
-**Run the cadence checkpoint.** It is due and unrun (§4 item 1) — `policies_processed` is **161**, one past the boundary. Do this before taking another policy; it is already trailing, and each further extraction widens the gap between the review and the corpus it is meant to review.
+**The cadence checkpoint is done** (§2(h), run at 161; next due at 180), so S261 opens with no standing obligation. Cheapest first business is the four decisions it left — §4 items **37–40**, all small: close `[92]`, add the census-scope sentence, retarget the worklist-size agenda item at the promote-queue ratio, and gloss `memory edit #13`.
 
-After that, no forced order: process the next policy; promote a `planPromote` stub through its own Plan/Generate cycle (items 5–13, 21, incl. `gemi:ncd20.4` and `gemi:ncd210.3`); or advance a §4 item — 35 and 36 are both cheap. Note that **reprocessing is closed** until every NCD is processed (§5.3), so items that would revisit a finished policy are not available.
+Otherwise no forced order: process the next policy; promote a `planPromote` stub through its own Plan/Generate cycle (items 5–13, 21, incl. `gemi:ncd20.4` and `gemi:ncd210.3`); or advance a §4 item — 35 and 36 are both cheap. Note that **reprocessing is closed** until every NCD is processed (§5.3), so items that would revisit a finished policy are not available.
 
 ### §5.3 — Do not
 
