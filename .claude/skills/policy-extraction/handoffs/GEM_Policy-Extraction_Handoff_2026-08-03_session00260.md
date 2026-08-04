@@ -63,6 +63,15 @@ Run as a normal two-turn pass: manifest first, thirteen borderlines resolved one
 
 **Correction to the brief's acceptance claim.** The migration is *not* "variant (a)'s scenario reproduced against the real corpus." S259 is dated `2026-08-01` and S260 `2026-08-03`, and the date prefix dominates lexicographic order, so lexicographic selection returns S260 too — the corpus cannot witness the inversion. The brief's own reasoning says mixed widths mis-select only on a **same-date** pair. What the corpus probe proves is subdir-wins, the ambiguity YELLOW, and back-compat; the lexicographic inversion is proven by **V106 alone**.
 
+### (e) `sources/` populated — 291 policy PDFs
+
+`sources/` had been an empty, committed-by-convention directory since the repo was created: the `.gitignore` rationale and `/gem-close` both assumed source PDFs would be there, but no commit had ever touched it, because the 159 processed policies were read in the chat environment where the PDFs lived in uploads and never crossed over.
+
+- **291 policy PDFs copied** from `Dropbox\Projects\HOO2pilot\policies` into `sources/`, ~69 MB (commit `3288095`). **Scope was deliberately narrow**: that one directory only. Other locations on the machine hold policy PDFs — including a near-twin `OneDrive\Projects\HOO2pilot\policies` and a per-version set under `Dropbox\Projects\GEMrag\docRepository` — and are **off-limits unless Tom names them** (Tom, S260). The Dropbox originals were copied, never moved; nothing was deleted.
+- **`pdffonts` triage on all 291**: 289 text-layer, **2 rasterized** — `A58824.pdf` and `NCA CAG-00296R3.pdf`, both with an empty font table, which CLAUDE.md makes unacceptable as an extraction source. Tom regenerated both; re-verified at 4 embedded fonts each and committed (`cea0295`). **`sources/` is now 291 text-layer, 0 rasterized**, so every file in it can back a reprocessing pass.
+- The **Dropbox originals of those two remain rasterized** — the two directories legitimately differ on exactly those files.
+- **No canonical file touched, audit unaffected.** `sources/` sits outside `CANONICAL_FILES`, `TTL_FILES` and `MARKDOWN_FILES`, and no check reads it, so its contents can never move the audit off GREEN. The §1 table is untouched by any of this.
+
 ## §3 — Decisions (S260)
 
 Thirteen borderlines, each Tom-confirmed individually.
@@ -89,6 +98,10 @@ Items 1–31 carry from S259 **unchanged in substance**; the transport port touc
 33. **SKILL.md progressive-disclosure split — still deferred.** By agreement it did not ride along with a transport port; it touches `CANONICAL_FILES`, the `skill_checklist_sync` sentinels, and the §1 table. `SKILL.md` is ~275 KB and is loaded in full on every trigger.
 34. **RESOLVED (S260) — `PYTHONUTF8=1` removed from `.claude/settings.json`; the audit now owns its output stream.** No longer tracked. Removing the env var revealed it was **load-bearing, not belt-and-braces**: with stdout at cp1252, `emit_pretty` died on the first `→` in the handoff annotations — `UnicodeEncodeError: 'charmap' codec can't encode character '→'` at L4305. Three bad properties: it fired **after** the "all checks GREEN" line printed; it exited **1**, which this script's own contract defines as "any YELLOW", so a crash read as drift; and `--json` was immune (`json.dumps` defaults `ensure_ascii=True`), so the healthy-looking path was the one nobody bootstraps with. Fixed by reconfiguring `sys.stdout`/`sys.stderr` to UTF-8 (`errors="replace"`) at the top of `main()` — the §Session Close **emitter contract** applied to stdout rather than to a `.ttl`: an env var covers only sessions launched through one settings file on one machine, while owning the stream covers every caller. File IO was never at risk; every `read_text`/`write_text` in both scripts already names `encoding=`, verified before removal. Re-verified with `PYTHONUTF8` unset and `-X utf8=0`: audit renders all 13 arrows with empty stderr, `--self-test` **108/108** exit 0.
 
+35. **`sources/` ↔ graph mapping is not established (S260).** 291 PDFs against 159 processed policies. Filenames carry policy identifiers (`A52466.pdf`, `LCD L33718.pdf`), but nothing records *which file backed which extraction*, and `SKILL.md` documents no naming convention for `sources/` at all. The gap bites hardest on multi-version policies, where S192 made "every version, not just the in-effect one" load-bearing: a bare `NCD 240.1.pdf` cannot say which rendition was read. Worth settling a convention — version/date in the filename, as `GEMrag\docRepository` already does — before the directory grows further. Cheap now, tedious to retrofit.
+36. **`sources/` gitignore question — raised and deliberately deferred (S260).** Tom asked for `sources/` to be excluded from pushes, then withdrew it pending a decision ("until I decide to ignore the sources directory"), so **the directory remains tracked**. If it is ever adopted, three places assert the opposite and must change **together**: `.gitignore`'s comment block (which explains at length why `sources/` is deliberately *not* ignored), `SKILL.md` §Session Close, and `/gem-close` step 6. Note also that ignoring it means git stops tracking the PDFs entirely — no history, no protection against an overwrite — and that the repo currently has **no remote** while the standing rule is *never push*, so nothing is reaching GitHub today regardless.
+37. **Two `sources/` files differ from their Dropbox originals (S260).** `A58824.pdf` and `NCA CAG-00296R3.pdf` are text-layer in `sources/` and still rasterized in `Dropbox\Projects\HOO2pilot\policies`. Expected, not drift — but a future sync or re-copy from Dropbox would silently reintroduce the rasterized versions.
+
 ---
 
 ## §5 — Plan for S261
@@ -111,4 +124,6 @@ From the canonical directory, read the latest handoff in `handoffs/`, then run `
 - Do not promote the PyYAML lazy import to module level — it is what keeps a PyYAML-less run useful.
 - Do not split `SKILL.md` without agreement (item 33).
 - `owl:versionInfo`, the `# Produced:` header date, and Tom-supplied `dc:source` URLs remain untouched.
+- **Do not delete anything from `sources/`, and do not delete the Dropbox originals** (Tom, S260). Deletions happen only on an explicit request naming the files — and are not to be volunteered, suggested, or made convenient.
+- **Do not read other policy-PDF locations.** `Dropbox\Projects\HOO2pilot\policies` is the sanctioned source directory; `OneDrive\Projects\HOO2pilot\policies`, `Dropbox\Projects\GEMrag\docRepository` and any others are off-limits unless Tom names them.
 - Never push to a remote.
