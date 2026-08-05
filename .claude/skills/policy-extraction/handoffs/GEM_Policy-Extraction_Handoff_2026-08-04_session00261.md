@@ -138,14 +138,17 @@ From the canonical directory, read the latest handoff in `handoffs/`, then run `
 
 **Process all NCDs first. The other policy documents follow.** Unchanged, and it outranks §4 item 39's promote-queue analysis.
 
-**The NCD queue is still exactly two policies**, both `planPromote` stubs:
+**The NCD queue is three policies**, all `planPromote` stubs:
+
+> **Corrected 2026-08-05 (S262), at Tom's request.** This paragraph originally read *"The NCD queue is still exactly two policies"* and listed only NCD 20.4 and NCD 210.3. **It was wrong when written**, not made wrong by later work: `gemi:ncd280.13` already carried `gem:nextPlannedStep gem:planPromote` at this session's own close commit (`76d03ea`). The count was read off the audit's `[NCD CENSUS]` **`Stubs`** line, and that is not the promote queue — `ncd_census` tests **lifecycle before workflow**, so a `planPromote` NCD whose prefLabel carries the `- RETIRED` marker is counted under **Retired**. `Stubs 2` was correct as defined; reading it as the queue was the error. Enumerate remaining work by querying `gem:nextPlannedStep gem:planPromote` on `gem:NCDpolicy` directly — and with rdflib, not a line-anchored regex over the TTL, which undercounts because not every workflow-state assertion begins a line. Recorded as S262 §4 item 43. Only this paragraph and its table were amended; the rest of S261 stands as written.
 
 | Policy | Title | Note |
 | :--- | :--- | :--- |
 | **NCD 20.4** | Implantable Automatic Defibrillators (ICDs) | CED policy with registry requirements; expect multi-version |
 | **NCD 210.3** | Colorectal Cancer Screening Tests | Extensive coding, long revision history; expect multi-version |
+| **NCD 280.13** | Transcutaneous Electrical Nerve Stimulators (TENS) - RETIRED | *(added by the S262 correction)* Retired in place, contents incorporated into NCD 160.27; counted under **Retired**, not **Stubs** |
 
-**Source workflow.** Both sit behind a CMS gate Tom can pass; **Tom drops the PDFs into `sources/`** and a session picks them up. Do not source them another way and do not extrapolate their URLs. Pre-Extraction requirement 5 applies: **every version, not just the one in effect**.
+**Source workflow.** NCD 20.4 and NCD 210.3 sit behind a CMS gate Tom can pass; **Tom drops the PDFs into `sources/`** and a session picks them up. Do not source them another way and do not extrapolate their URLs. Pre-Extraction requirement 5 applies: **every version, not just the one in effect**.
 
 **But the queue is not the corpus (§4 item 41), and S261 is the third proof.** `sources/` should be re-checked for NCDs that have a PDF on hand but no graph individual — S260 verified that set was empty, and NCD 50.2's PDF was added after that check.
 
