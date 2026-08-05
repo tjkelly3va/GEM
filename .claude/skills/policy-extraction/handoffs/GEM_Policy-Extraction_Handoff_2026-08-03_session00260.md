@@ -10,7 +10,7 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 | `GEM_policy_instances.ttl` | `6c68153a7cafa3de01db2aca9821d181` | 5664290 | **M** |
 | `GEM_code_group_instances.ttl` | `10a70c01175dcf714a4bd8307bd07eeb` | 25942 |  |
 | `cpt.ttl` | `351aa816b978ec63a6800feb50bfb5c4` | 35223 |  |
-| `SKILL.md` | `2e88b6eafa6c3b7eb839dee6aef38d44` | 277820 | **M** |
+| `SKILL.md` | `bde29505a294c3746ac88f0dbc4b79fe` | 278350 | **M** |
 | `gem_reference.md` | `4ddd97d8b96dec2b4aff8e0318376c46` | 120152 |  |
 | `gem_rule_categories.md` | `91adc9e28f00057de4c740b833a7abbc` | 1390132 | **M** |
 | `gem_edit_log.md` | `fd63bcc8e07ca997d30d30062fb894ce` | 94593 | **M** |
@@ -30,7 +30,7 @@ S260 ran in **three distinct parts**, and only the first was in the session brie
 
 **Half two — four extractions** (§2(f), §2(g), §2(i), §2(j)), all requested by Tom after the port closed, all read from the `sources/` library. This is where the graph moved: `policies_processed` **159 → 163**, `referencesPolicy` **1109 → 1121**, `revisesPolicy` **239 → 242**, census **Active 127 → 130, Retired 10 → 11, Total 144 → 148**. `revisedByPolicy` stays **0**. Two small single-version non-coverage NCDs; NCD 20.15, the corpus's largest NCD extraction to date at 54 rules; and NCD 190.4, its first retirement-lifecycle extraction. Each carries its own `gem_rule_categories.md` section and `gem_edit_log.md` line, authored in the same Generate turn as its triples.
 
-**Half three — the 20-policy cadence checkpoint** (§2(h)), run at **161** after Tom elected to take both extractions first. Review only, no graph or schema change: zero genuine retirement candidates, no concept group at 3+ policies, and one dangling agenda item resolved (the active-reminders bundle). It surfaced four decisions, now §4 items 37–40. **Next checkpoint due at 180.**
+**Half three — the cadence checkpoint** (§2(h)), run at **161** after Tom elected to take both extractions first. Review only, no graph or schema change: zero genuine retirement candidates, no concept group at 3+ policies, and one dangling agenda item resolved (the active-reminders bundle). It surfaced four decisions, now §4 items 37–40. **The cadence was then widened 20 → 40 (§3 D9), so the next checkpoint falls at 200.**
 
 §3 D5's finding still stands for half one: a transport-only session earns no edit-log entry, and the log's own scope plus the S144/S145/S156–S159/S175/S182/S197/S237 precedent is the evidence. Both extractions earn one because they are corpus changes.
 
@@ -104,7 +104,7 @@ Second extraction of the session, `gemi:ncd230.15` (ncdid=234), same shape as §
 - **Source-text note.** The PDF's text layer renders the section sign as U+FFFD. That is a `pdftotext` artifact, not content: `r2` carries **§1862(a)(1)** correctly, asserted at emit time behind an assertion that no replacement character reaches the emitted block, and verified post-parse. Bears on §4 item 23.
 - **Verification.** +74 triples with the predicate histogram checked: both rules carry exactly one `gem:ruleDescription` and zero `gem:description`; `r2` carries both its rule types. TTL clean — 59,668 CRLF, **0 lone-LF**, 0 tabs, terminal `.\r\n` intact.
 
-### (h) 20-policy cadence checkpoint — RUN
+### (h) Cadence checkpoint — RUN (the last on the 20-policy cadence)
 
 Run at `policies_processed` **161**, one past the boundary. Review only; no graph or schema change resulted.
 
@@ -152,6 +152,7 @@ Thirteen borderlines, each Tom-confirmed individually.
 - **D4 (B6) — `python3` → `python`.** Not on PATH on Windows.
 - **D5 (B8) — no `gem_edit_log.md` entry.** Evidence, not assumption: the log's header scopes it to **corpus** changes, and every audit-script/methodology session in range — S144, S145, S156, S157, S158, S159, S175, S182, S197, S237 — has no entry, including those that added whole audit checks.
 - **D6 (B4/B7/B9/B10–B13).** Handoff filename keeps the date. `CLAUDE.md` bootstrap block restored. `allowed-tools: Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch` — `WebSearch`/`WebFetch` because §Policy-to-Policy References makes web resolution a **required** step for a cited-policy URL not already in hand. `.skill` zip deleted; docx verify step retargeted; `python-docx` added to `requirements.txt`; plain `mv` for the untracked docx files, `git mv` only for the handoff.
+- **D9 — checkpoint cadence widened 20 → 40 policies (Tom, S260).** `SKILL.md` §Checkpoint Cadence and both §Iterative Improvement references now read 40. Checkpoints ran at 20-policy intervals through the one at 161; the grid stays on round multiples, so **the next falls at 200**. The per-policy review is untouched — §Iterative Improvement still requires a refinement pass after *every* policy, and the Verification Checkpoint still ends with the skill-review question; only the periodic deep review moves. Historical *"20-policy checkpoint"* references in `policy_worklist.json` resolutions (S40, S67, S240) and in past register entries are records of what happened and were deliberately left as written.
 - **D8 — record V1 dates in `KNOWN_V1_DATES` in the same Generate turn, without asking (Tom, S260).** A policy minted at `gem:policyVersion` > 1 enters `policy_effective_date_v1`'s INFO work queue immediately, because the check keys off `gem_audit.py`'s hand-maintained table and cannot see that the extraction already read V1. Both NCD 20.15 and NCD 190.4 queued this session with their V1 dates already established — a queue entry whose answer was in hand when it was created. The row is now added as part of the same Generate, with `None` as the second element where V1 publishes no Implementation Date field (recording the S192 no-manufacture ruling, not a gap), inserted in section order. Written into `SKILL.md` §Policy dates anchor to Version 1 and into the `KNOWN_V1_DATES` comment block, so it survives the session rather than living in conversation. **Standing — do not ask.**
 - **D7 — `sources/` files are not annotated in the graph; `dc:source` is sufficient (Tom, S260).** No triple links a policy individual to the PDF in `sources/` that backed its extraction, and none is wanted: `dc:source` already carries the provenance the graph needs. The directory is a human-facing archive, not a modelled entity. This **closes the S260 §4 item** that proposed settling a `sources/` naming convention to record which rendition was read — the item is struck rather than deferred, so a future session should not re-file it. The eventual answer is a different shape entirely: **version-level policy instances, each with `dc:source` pointing at that version's own online document URL**, which makes the rendition identifiable from the graph without a filename convention. That work is weeks to months out and is not queued here.
 
@@ -159,7 +160,7 @@ Thirteen borderlines, each Tom-confirmed individually.
 
 Items 1–31 carry from S259 **unchanged in substance**; the transport port touched no graph state, so every graph-dependent item stands exactly as S259 left it. Renumbered items below are new or materially updated.
 
-1. **RESOLVED (S260) — cadence checkpoint run at 161.** No longer tracked as due. Full outcome in §2(h); the four decisions it surfaced are items 37–40 below. **Next checkpoint due at 180.**
+1. **RESOLVED (S260) — cadence checkpoint run at 161.** No longer tracked as due. Full outcome in §2(h); the four decisions it surfaced are items 37–40 below. **Cadence widened 20 → 40 at S260 (§3 D9): next checkpoint at 200.**
 2. **LCD/Article V1-date research — 18 candidates (`[107]` remainder).** Unchanged: `a52467, a52492, a52494, a52495, a52510, a52514, a52517, a52519, a54969, a55426, a57115, a58075, lcd33612, lcd33718, lcd33797, lcd33800, lcd33923, lcd36524`. Blocked on Tom's renditions. `policy_effective_date_v1` INFO = **24**.
 3. **CIM stub source availability — 42.** Unchanged. `tn33CIM` (S259) and `tn159CIM` (S249) both expected to stay Source-pending.
 4. **Possible era-gate mistokens among pre-crystallization transmittals (S236); CIM ceiling 169 (S247).** Pending Tom.
@@ -207,7 +208,7 @@ From the canonical directory, read the latest handoff in `handoffs/`, then run `
 
 ### §5.2a — After the NCDs
 
-The cadence checkpoint is done (§2(h), run at 161; next due at 180), so nothing else is owed. Cheap fill-in work: the four checkpoint decisions, §4 items **37–40** — close `[92]`, add the census-scope sentence, retarget the worklist-size agenda item, gloss `memory edit #13`.
+The cadence checkpoint is done (§2(h), run at 161), and the cadence has since been widened 20 → 40 (§3 D9), so the next falls at **200** and nothing is owed for a long while. Cheap fill-in work: the four checkpoint decisions, §4 items **37–40** — close `[92]`, add the census-scope sentence, retarget the worklist-size agenda item, gloss `memory edit #13`.
 
 Then, subject to the NCD priority above: process the next policy; promote a `planPromote` stub through its own Plan/Generate cycle (items 5–13, 21, incl. `gemi:ncd20.4` and `gemi:ncd210.3`); or advance a §4 item — 35 and 36 are both cheap. Note that **reprocessing is closed** until every NCD is processed (§5.3), so items that would revisit a finished policy are not available.
 
