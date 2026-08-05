@@ -14,7 +14,7 @@
       "Bash(git push)",
       "Bash(git push origin main)",
       "Bash(git remote -v)",
-      "Bash(git fetch:*)",
+      "Bash(git fetch)",
       "Skill(policy-extraction)",
       "Read(.claude/skills/policy-extraction/**)",
       "Read(sources/**)",
