@@ -1208,6 +1208,11 @@ def check_deleted_twin_collision(
     return findings
 
 
+# A Turtle double-quoted literal, honouring backslash escapes. Used to blank
+# literals out before predicate-position matching (see check_predicate_ordering).
+_PO_LITERAL_RE = re.compile(r'"(?:[^"\\]|\\.)*"')
+
+
 def check_predicate_ordering(files: dict[str, bytes]) -> list[Finding]:
     """gem:memberOfOntology is second-to-last, dc:source is last.
     Only checks instance definitions, not full ontology terms (which follow
@@ -1234,13 +1239,19 @@ def check_predicate_ordering(files: dict[str, bytes]) -> list[Finding]:
     for m in block_pat.finditer(text):
         body = m.group("body") + m.group("term")
         lines = [L for L in body.splitlines() if L.strip()]
-        # locate predicates of interest
+        # locate predicates of interest.
+        # Strip string literals first: this check reads TRIPLES, not prose, and
+        # gem:workflowDescription routinely explains why a stub carries no
+        # dc:source. Matching the phrase inside a literal reported a misplaced
+        # dc:source on blocks that have none -- S262, gemi:ncd10.1/gemi:ncd80.7,
+        # where 194 corpus workflowDescription literals already mention the term.
         moo_idx = None
         dcs_idx = None
         for i, L in enumerate(lines):
-            if "gem:memberOfOntology" in L:
+            bare = _PO_LITERAL_RE.sub('""', L)
+            if "gem:memberOfOntology" in bare:
                 moo_idx = i
-            if re.search(r"\bdc:source\b", L):
+            if re.search(r"\bdc:source\b", bare):
                 dcs_idx = i
         n = len(lines)
         # If both present, memberOfOntology should be at n-2 and dc:source at n-1
@@ -3351,6 +3362,7 @@ KNOWN_V1_DATES: dict[str, tuple[str, Optional[str]]] = {
     "ncd160.6": ("1966-01-01", None),
     "ncd160.7.1": ("1995-08-07", None),
     "ncd160.8": ("1966-01-01", None),
+    "ncd160.9": ("1966-01-01", None),
     "ncd160.12": ("2003-04-01", "2003-04-01"),
     "ncd160.18": ("1999-07-01", "1999-07-01"),
     "ncd160.22": ("1984-06-12", None),
@@ -6512,6 +6524,26 @@ def _variant_111_pts_icd_targets_stay_lexicographic() -> dict:
     return _ttl(body)
 
 
+def _variant_112_po_dcsource_named_in_literal() -> dict:
+    """A stub with NO dc:source whose workflowDescription NAMES dc:source -> GREEN.
+
+    check_predicate_ordering scans raw lines. Before S262 it matched
+    `dc:source` inside the string literal and reported a misplaced dc:source
+    on a block that has none -- the exact shape of gemi:ncd10.1 and
+    gemi:ncd80.7, and of every stub minted without a URL whose register
+    explains the absence. 194 corpus workflowDescription literals already
+    mention the term, so the false positive was latent corpus-wide.
+    gem:memberOfOntology is correctly last here, there being no dc:source."""
+    body = (
+        'gemi:ncdV112 a gem:NCDpolicy ;' + chr(10) +
+        '    gem:prefLabel "v112" ;' + chr(10) +
+        '    gem:workflowDescription "No dc:source -- no URL was supplied '
+        'and none may be extrapolated." ;' + chr(10) +
+        '    gem:memberOfOntology gem:gemOntology .' + chr(10)
+    )
+    return _ttl(body)
+
+
 _VARIANTS = [
     # --- Phase 3 variants (V1-V11; S72 Cycle 0) ----------------------------
     (
@@ -7168,6 +7200,15 @@ _VARIANTS = [
         "Variant 111 (ICD targets lexicographic, J96.11 before J96.9 -> GREEN)",
         "predicate_target_sort",
         _variant_111_pts_icd_targets_stay_lexicographic,
+        [],
+    ),
+    # --- predicate_ordering (V112; S262) ----------------------------------
+    (
+        "Variant 112 (no dc:source, but named inside a literal -> GREEN)",
+        # NOTE: the ALL_CHECKS key is `predicate_order`; the Finding it emits
+        # carries category `predicate_ordering`. Pre-existing mismatch (S262).
+        "predicate_order",
+        _variant_112_po_dcsource_named_in_literal,
         [],
     ),
 ]
