@@ -13,7 +13,16 @@
       "Bash(git checkout:*)",
       "Bash(git push)",
       "Bash(git push origin main)",
-      "Bash(git remote -v)"
+      "Bash(git remote -v)",
+      "Bash(git fetch:*)",
+      "Skill(policy-extraction)",
+      "Read(.claude/skills/policy-extraction/**)",
+      "Read(sources/**)",
+      "Edit(.claude/skills/policy-extraction/**)",
+      "Write(.claude/skills/policy-extraction/handoffs/**)",
+      "Read(//c/Users/tom/AppData/Local/Temp/claude/**)",
+      "Edit(//c/Users/tom/AppData/Local/Temp/claude/**)",
+      "Write(//c/Users/tom/AppData/Local/Temp/claude/**)"
     ],
     "deny": [
       "Bash(git push --force:*)",
