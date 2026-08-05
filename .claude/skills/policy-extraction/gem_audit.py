@@ -1270,6 +1270,210 @@ def check_predicate_ordering(files: dict[str, bytes]) -> list[Finding]:
     return findings
 
 
+# --- predicate_target_sort (S261) --------------------------------------------
+#
+# gem_turtle_style_guide.md §Predicate Ordering requires a repeated object
+# property's targets to be sorted within their subject block, "for stable
+# diffs". Until S261 that rule read "sort targets alphabetically by local name"
+# with no exception, and that sentence is WRONG for the numbered-child
+# predicates. gem:hasPolicyRule targets are gemi:<policy>_r<N>, so lexicographic
+# order yields _r1, _r10, _r11, _r2 -- a form the corpus has never once used.
+# Measured at S261 over 131 multi-target runs: gem:hasPolicyRule is 131/131
+# NUMERICALLY sorted and only 80/131 lexicographically sorted, and among the 51
+# blocks carrying >=10 rules exactly 0 are lexicographic.
+#
+# Natural order cannot simply replace lexicographic either, because the inverse
+# holds for codes: ICD targets are lexicographic in the corpus
+# (gem:exclusivelyCoversCondition 21/23 lexicographic against 8/23 natural --
+# icd10:J96.11 sorts before icd10:J96.9, which is what the corpus does).
+#
+# Hence a two-tier rule, confirmed by Tom at S261:
+#   numbered-child predicates      -> natural (numeric-aware) order
+#   every other repeated object    -> lexicographic by local name
+#
+# Note what a check written on the guide's PRE-S261 wording would have done: it
+# would have reported 51 correct blocks as drift and its autofix would have
+# scrambled every large policy's rule links while reporting success. That is the
+# S144 dead-check shape -- an instrument that agrees with its own specification
+# and not with the corpus -- which is why the tiers were measured off the corpus
+# before this check was written rather than read off the prose.
+
+_NUMBERED_CHILD_PREDS = frozenset({
+    "gem:hasPolicyRule",
+    "gem:hasPolicyGroup",
+    "gem:hasPolicyCodingRule",
+    "gem:hasAnchoredCodingScope",
+})
+
+# An object-valued predicate line: 4-space indent, prefixed predicate, prefixed
+# target, then ';' or '.'. A literal-valued line has a quote (or a number, or a
+# '<') where the target group must match, so descriptions, rule strings, dates
+# and full-IRI dc:source lines never match and are out of scope by construction.
+_OBJ_LINE_RE = re.compile(
+    r"^(?P<indent>[ ]{4})(?P<pred>(?:gem|skos|dc|owl|rdfs):[A-Za-z]\w*)"
+    r"[ ]+(?P<target>(?:gemi|hcpcs|icd10|cpt|gem|skos):[A-Za-z0-9][\w.\-]*)"
+    r"(?P<suffix>[ ]*[;.][ ]*)$"
+)
+
+
+def _pts_local_name(prefixed: str) -> str:
+    return prefixed.split(":", 1)[1]
+
+
+def _pts_natural_key(prefixed: str) -> tuple:
+    """Numeric-aware key. Each chunk is a 3-tuple so an int chunk can never be
+    compared against a str chunk (which would raise TypeError on a run whose
+    local names differ in shape)."""
+    ln = _pts_local_name(prefixed)
+    return tuple(
+        (0, int(t), "") if t.isdigit() else (1, 0, t)
+        for t in re.split(r"(\d+)", ln) if t != ""
+    )
+
+
+def _pts_lex_key(prefixed: str) -> tuple:
+    """Local name first (what the style guide specifies), prefix as tiebreak so
+    a mixed-namespace run (hcpcs:/cpt: on one procedure predicate) is stable."""
+    return (_pts_local_name(prefixed), prefixed)
+
+
+def check_predicate_target_sort(files: dict[str, bytes]) -> list[Finding]:
+    """Repeated object-property targets are sorted within their subject block.
+
+    Two-tier (see the S261 note above): numbered-child predicates sort
+    numerically, everything else lexicographically by local name.
+
+    The autofix rewrites only the TARGET TOKEN in each line slot, leaving each
+    line's indent, predicate and trailing punctuation exactly where they were.
+    That is deliberate: a run can be the last thing in a block, so its final
+    line carries the ' .' terminator, and physically moving lines would move the
+    terminator with them. Rewriting in place makes that unreachable.
+
+    Verification is stronger than a parse probe. A pure reorder must leave the
+    parsed graph IDENTICAL AS A SET, so the repair is probed by parsing it and
+    diffing triple sets against the original; any difference means the rewrite
+    changed content rather than order, and the finding downgrades to RED with no
+    autofix offered. The probe runs only when there is something to repair, so a
+    clean corpus costs no extra parse.
+    """
+    findings: list[Finding] = []
+    for fname in sorted(TTL_FILES):
+        data = files.get(fname)
+        if not data:
+            continue
+        text = data.decode("utf-8")
+        crlf = "\r\n" in text
+        lines = text.replace("\r\n", "\n").split("\n")
+
+        out = list(lines)
+        offenders: list[tuple[str, str, int]] = []
+        subject = None
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            if line and not line.startswith(" "):
+                sm = re.match(r"^(\S+)\s+a\s+", line)
+                if sm:
+                    subject = sm.group(1)
+            m = _OBJ_LINE_RE.match(line)
+            if not m:
+                i += 1
+                continue
+            pred = m.group("pred")
+            # Maximal CONSECUTIVE run of one predicate. Only consecutive lines
+            # are grouped, so a reorder can never hop a target over an
+            # intervening predicate.
+            slots = []
+            j = i
+            while j < len(lines):
+                mj = _OBJ_LINE_RE.match(lines[j])
+                if not mj or mj.group("pred") != pred:
+                    break
+                slots.append((j, mj))
+                j += 1
+            if len(slots) >= 2:
+                targets = [mj.group("target") for _, mj in slots]
+                key = (_pts_natural_key if pred in _NUMBERED_CHILD_PREDS
+                       else _pts_lex_key)
+                want = sorted(targets, key=key)
+                if want != targets:
+                    offenders.append((subject or "?", pred, len(targets)))
+                    for (idx, mj), tgt in zip(slots, want):
+                        out[idx] = (mj.group("indent") + pred + " " + tgt
+                                    + mj.group("suffix"))
+            i = j
+
+        if not offenders:
+            continue
+
+        fixed_text = "\n".join(out)
+        if crlf:
+            fixed_text = fixed_text.replace("\n", "\r\n")
+        payload = fixed_text.encode("utf-8")
+
+        try:
+            before = rdflib.Graph().parse(data=text, format="turtle")
+            after = rdflib.Graph().parse(data=fixed_text, format="turtle")
+            if set(before) != set(after):
+                raise RuntimeError(
+                    f"reorder changed the graph: "
+                    f"{len(set(before) - set(after))} triple(s) lost, "
+                    f"{len(set(after) - set(before))} gained"
+                )
+            verified, probe_err = True, None
+        except Exception as e:  # noqa: BLE001 - probe reports, never raises
+            verified, probe_err = False, e
+
+        sample = "; ".join(f"{s} {p} ({n})" for s, p, n in offenders[:5])
+        more = " ..." if len(offenders) > 5 else ""
+
+        if not verified:
+            findings.append(Finding(
+                tier="RED", category="predicate_target_sort",
+                file=fname,
+                location=", ".join(sorted({s for s, _, _ in offenders})[:8]),
+                message=(
+                    f"{len(offenders)} unsorted predicate run(s) in {fname}, but "
+                    f"the computed reorder does not verify ({probe_err!r}). A pure "
+                    f"reorder must leave the graph identical as a set, so this is a "
+                    f"defect in the rewrite, not in the file -- do NOT hand-apply "
+                    f"it. Examples: {sample}{more}"
+                ),
+            ))
+            continue
+
+        def make_fix(fn=fname, blob=payload):
+            def apply(files_inner):
+                files_inner[fn] = blob
+            return apply
+
+        n_pred = len({p for _, p, _ in offenders})
+        findings.append(Finding(
+            tier="YELLOW", category="predicate_target_sort",
+            file=fname,
+            location=", ".join(sorted({s for s, _, _ in offenders})[:8])
+                     + (" ..." if len({s for s, _, _ in offenders}) > 8 else ""),
+            message=(
+                f"{len(offenders)} repeated object-property run(s) across "
+                f"{n_pred} predicate(s) are not in the order "
+                f"gem_turtle_style_guide.md §Predicate Ordering requires "
+                f"(numbered children numerically, everything else "
+                f"lexicographically by local name). Cosmetic -- the triples are "
+                f"identical either way -- but it costs diff stability. "
+                f"Examples: {sample}{more}"
+            ),
+            autofixable=True,
+            autofix_fn=make_fix(),
+            autofix_description=(
+                f"Reorder targets within {len(offenders)} predicate run(s) in "
+                f"{fname}, rewriting only the target token in each line slot so "
+                f"indentation and trailing punctuation stay put. Verified "
+                f"graph-set-identical before being offered."
+            ),
+        ))
+    return findings
+
+
 def check_formatting_integrity(files: dict[str, bytes]) -> list[Finding]:
     """TTL: CRLF only, no tabs, ends with `.\\r\\n`.
        Markdown: LF only.
@@ -4117,6 +4321,7 @@ ALL_CHECKS = [
     ("uri_collision",      lambda files, graph, expected, handoff_text: check_uri_collisions(files, graph)),
     ("deleted_twin_collision", lambda files, graph, expected, handoff_text: check_deleted_twin_collision(files, graph)),
     ("predicate_order",    lambda files, graph, expected, handoff_text: check_predicate_ordering(files)),
+    ("predicate_target_sort", lambda files, graph, expected, handoff_text: check_predicate_target_sort(files)),
     ("ruledescription_domain", lambda files, graph, expected, handoff_text: check_ruledescription_domain_conformance(files, graph)),
     ("inverse_note_conformance", lambda files, graph, expected, handoff_text: check_inverse_note_conformance(files, graph)),
     ("domain_range_conformance", lambda files, graph, expected, handoff_text: check_domain_range_conformance(files, graph)),
@@ -6240,6 +6445,72 @@ def _variant_108_handoff_resolution_both_populated() -> dict:
     }
 
 
+# --- S261 variants (V109-V111; predicate_target_sort) ------------------------
+#
+# Mutation-tested, and the last two are the point of the set. V109 alone would
+# pass a check written as blanket lexicographic -- which is exactly the check the
+# style guide's pre-S261 wording describes, and exactly the one that would
+# scramble 51 policies' rule links. V110 is what makes that mutation fail: it
+# pins that the corpus's NUMERIC hasPolicyRule order is GREEN, so a
+# lexicographic-everywhere check reports drift on it and the suite catches the
+# regression. V111 pins the opposite carve-out, that ICD targets stay
+# lexicographic, so a natural-sort-everywhere check fails too. Between them the
+# tiers cannot be collapsed in either direction without a red suite.
+#
+# All three fail against the pre-S261 script (ValueError: unknown check
+# category -- the check does not exist), verified by running both scripts over
+# the same fixtures per the S144 regression-test rule.
+
+
+def _variant_109_pts_unsorted_lexicographic() -> dict:
+    """Concept links out of lexicographic order -> YELLOW, autofixable."""
+    body = (
+        'gemi:ncdV109 a gem:NCDpolicy ;' + chr(10) +
+        '    gem:prefLabel "v109" ;' + chr(10) +
+        '    gem:refersToClinicalConcept gemi:conceptZebra ;' + chr(10) +
+        '    gem:refersToClinicalConcept gemi:conceptApple ;' + chr(10) +
+        '    gem:refersToClinicalConcept gemi:conceptMango ;' + chr(10) +
+        '    gem:memberOfOntology gem:gemOntology .' + chr(10)
+    )
+    return _ttl(body)
+
+
+def _variant_110_pts_numbered_children_numeric_ok() -> dict:
+    """gem:hasPolicyRule in the corpus's NUMERIC order -> GREEN.
+
+    Lexicographically this run is 'wrong' (_r10 sorts before _r2), so a check
+    written on the style guide's pre-S261 blanket wording flags it. That is the
+    whole reason this variant exists: it converts the 51-block scrambling bug
+    from something a reviewer must notice into something the suite reports."""
+    body = (
+        'gemi:ncdV110 a gem:NCDpolicy ;' + chr(10) +
+        '    gem:prefLabel "v110" ;' + chr(10) +
+        '    gem:hasPolicyRule gemi:ncdV110_r1 ;' + chr(10) +
+        '    gem:hasPolicyRule gemi:ncdV110_r2 ;' + chr(10) +
+        '    gem:hasPolicyRule gemi:ncdV110_r9 ;' + chr(10) +
+        '    gem:hasPolicyRule gemi:ncdV110_r10 ;' + chr(10) +
+        '    gem:hasPolicyRule gemi:ncdV110_r11 ;' + chr(10) +
+        '    gem:memberOfOntology gem:gemOntology .' + chr(10)
+    )
+    return _ttl(body)
+
+
+def _variant_111_pts_icd_targets_stay_lexicographic() -> dict:
+    """ICD targets in LEXICOGRAPHIC order -> GREEN.
+
+    icd10:J96.11 before icd10:J96.9 is what the corpus does (21/23 runs at
+    S261). Natural order would rank J96.9 first, so a check that applied the
+    numbered-child tier globally flags this run. Pins the carve-out's edge."""
+    body = (
+        'gemi:ncdV111 a gem:NCDpolicy ;' + chr(10) +
+        '    gem:prefLabel "v111" ;' + chr(10) +
+        '    gem:exclusivelyCoversCondition icd10:J96.11 ;' + chr(10) +
+        '    gem:exclusivelyCoversCondition icd10:J96.9 ;' + chr(10) +
+        '    gem:memberOfOntology gem:gemOntology .' + chr(10)
+    )
+    return _ttl(body)
+
+
 _VARIANTS = [
     # --- Phase 3 variants (V1-V11; S72 Cycle 0) ----------------------------
     (
@@ -6878,6 +7149,25 @@ _VARIANTS = [
         "handoff_resolution",
         _variant_108_handoff_resolution_both_populated,
         [("YELLOW", "handoff_resolution", "")],
+    ),
+    # --- predicate_target_sort (V109-V111; S261) --------------------------
+    (
+        "Variant 109 (concept links out of lexicographic order -> YELLOW)",
+        "predicate_target_sort",
+        _variant_109_pts_unsorted_lexicographic,
+        [("YELLOW", "predicate_target_sort", "gemi:ncdV109")],
+    ),
+    (
+        "Variant 110 (hasPolicyRule in numeric order _r9,_r10,_r11 -> GREEN)",
+        "predicate_target_sort",
+        _variant_110_pts_numbered_children_numeric_ok,
+        [],
+    ),
+    (
+        "Variant 111 (ICD targets lexicographic, J96.11 before J96.9 -> GREEN)",
+        "predicate_target_sort",
+        _variant_111_pts_icd_targets_stay_lexicographic,
+        [],
     ),
 ]
 

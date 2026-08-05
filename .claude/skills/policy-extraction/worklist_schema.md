@@ -13,8 +13,7 @@ Generate and update it via Python, never by hand-editing in a response.
   "metadata": {
     "created": "2026-05-22",
     "last_updated": "2026-05-22",
-    "policies_processed": 0,
-    "checkpoint_cadence": 20
+    "policies_processed": 0
   },
   "related_policies": [],
   "uncoded_clinical_concepts": [],
@@ -24,7 +23,7 @@ Generate and update it via Python, never by hand-editing in a response.
 
 The `uncoded_clinical_concepts` array is retained in the structure so that pre-retirement worklists remain valid, but **no new entries are added to it**. A worklist created after the retirement may carry an empty array and a `metadata.uncoded_clinical_concepts_status` string recording the retirement. The fix-uri rule below also applies: instance URIs use the `gemi:` namespace (e.g. `gemi:lcd33797`), not a bare `:` prefix.
 
-`metadata.checkpoint_cadence` is the *recurring* review interval, not a target: a value of `20` means "review at every 20 policies processed," not "review once when `policies_processed` reaches 20." The recurring cadence was confirmed at the Session 40 checkpoint (when `policies_processed` was 21); the field was renamed from `checkpoint_at` at that time to make the semantics unambiguous.
+`metadata.checkpoint_cadence` was **removed at S261**. It had carried the *recurring* review interval, not a target — a value of `20` meant "review at every 20 policies processed," not "review once when `policies_processed` reaches 20" — and was renamed from `checkpoint_at` at the Session 40 checkpoint to make that unambiguous. It was removed because nothing ever read it: no `gem_audit.py` check and no other consumer referenced the field, so it was documentation-grade state whose only effect was on a human or LLM reading the worklist. When S260 widened the cadence 20 → 40 the field was left at `20`, silently contradicting `SKILL.md` §Checkpoint Cadence, which is the interval's single home and — as of this removal — is again its only one. **A pre-S261 worklist carrying the field is still valid**; its value is simply not authoritative, and it should be dropped rather than corrected if such a worklist is ever revised.
 
 ---
 
