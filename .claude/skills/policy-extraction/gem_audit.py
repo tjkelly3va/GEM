@@ -1213,6 +1213,100 @@ def check_deleted_twin_collision(
 _PO_LITERAL_RE = re.compile(r'"(?:[^"\\]|\\.)*"')
 
 
+# A subject block: the subject/type line, its indented predicate lines, and the
+# terminator line ending in ' .'. Shared by check_predicate_ordering and
+# check_block_terminator.
+#
+# EVERY QUANTIFIER HERE IS UNAMBIGUOUS, AND THAT IS THE POINT (S266). The prior
+# form was
+#     ^(gemi:|<)[^\s]+\s+a\s+[^;]+;\s*\r?\n  (?:[ \t]+[^\r\n]+\r?\n)+  [ \t]+[^\r\n]+\s+\.\s*\r?\n
+# in which `[ \t]+` and `[^\r\n]+` BOTH match a leading space, so each body line
+# admits one split per indent character. That is harmless while the block
+# matches on the greedy first pass, and catastrophic the moment it cannot match
+# at all: the engine then explores indent^lines combinations. At S266 a single
+# 112-line policy block whose terminator read ">." instead of "> ." — one
+# missing space, emitted by a generator that stripped " ;" and appended "." —
+# ran for over 25 minutes without returning, and produced no finding, because a
+# hang is not a diagnostic. Bootstrap had run the same audit in under two
+# minutes.
+#
+# The rewrite makes each line consume exactly one way: one indent character,
+# then the rest of the line. `\s*`/`\s+` are replaced by `[ \t]*`/`[ \t]` so
+# nothing can silently span a newline, and the body is lazy so the terminator
+# split is found directly rather than by backtracking. Verified equivalent on
+# the pre-change corpus: 6154 blocks under both forms, identical subject sets.
+#
+# A block whose terminator is malformed is now simply not matched — which is
+# why check_block_terminator exists alongside this, to report what this pattern
+# skips. Neither is sufficient alone: this one cannot hang, and that one cannot
+# be silent.
+_BLOCK_RE = re.compile(
+    r"(?P<head>^(gemi:|<)[^\s]+[ \t]+a[ \t]+[^;\r\n]+;[ \t]*\r?\n)"
+    r"(?P<body>(?:[ \t][^\r\n]*\r?\n)*?)"
+    r"(?P<term>[ \t][^\r\n]*[ \t]\.[ \t]*\r?\n)",
+    re.MULTILINE,
+)
+
+# A subject/type line that opens a block. Used to count blocks independently of
+# whether they terminate correctly.
+_BLOCK_HEAD_RE = re.compile(
+    r"(?P<head>^(gemi:|<)[^\s]+[ \t]+a[ \t]+[^;\r\n]+;[ \t]*\r?\n)",
+    re.MULTILINE,
+)
+
+
+def check_block_terminator(files: dict[str, bytes]) -> list[Finding]:
+    """Every subject block ends with a terminator line whose ' .' is separated
+    from the final token by a space.
+
+    `gemi:x a gem:T ; ... dc:source gemi:p.` is valid Turtle and rdflib parses
+    it, so neither the parse nor a triple-count verification catches it — but
+    it is not the form the corpus uses (6826 correctly-spaced terminators at
+    S266, zero others), and it makes the block invisible to every raw-text
+    check keyed on _BLOCK_RE. The defect is therefore silent in the graph and
+    load-bearing in the audit, which is the combination worth a check.
+
+    Added S266, after a generator emitted 75 such blocks in one pass by
+    stripping " ;" (two characters) and appending "." — eating the space.
+    """
+    findings: list[Finding] = []
+    for name in TTL_FILES:
+        raw = files.get(name)
+        if not raw:
+            continue
+        text = raw.decode("latin-1")
+        heads = _BLOCK_HEAD_RE.findall(text)
+        matched = {m.group("head") for m in _BLOCK_RE.finditer(text)}
+        bad = []
+        for m in _BLOCK_HEAD_RE.finditer(text):
+            if m.group("head") in matched:
+                continue
+            subject = m.group("head").split()[0]
+            # report the block's last indented line, which is where the fix goes
+            tail = text[m.end():]
+            stop = tail.find("\r\n\r\n")
+            seg = tail[:stop] if stop != -1 else tail[:2000]
+            last = [L for L in seg.split("\r\n") if L.strip()]
+            bad.append((subject, last[-1][-60:] if last else "<empty block>"))
+        if bad:
+            sample = bad[:5]
+            findings.append(Finding(
+                tier="YELLOW", category="block_terminator", file=name,
+                location="; ".join(s for s, _ in sample),
+                message=(
+                    f"{len(bad)} of {len(heads)} subject blocks do not end in a "
+                    f"' .' terminator and are therefore invisible to every "
+                    f"raw-text block check (predicate_ordering among them). "
+                    f"Usual cause: a missing space before the final period "
+                    f"('gemi:p.' for 'gemi:p .') — valid Turtle, so the parse "
+                    f"and any triple-count verification pass clean. "
+                    f"Examples (subject; last line): "
+                    + "; ".join(f"{s} (...{t})" for s, t in sample)
+                ),
+            ))
+    return findings
+
+
 def check_predicate_ordering(files: dict[str, bytes]) -> list[Finding]:
     """gem:memberOfOntology is second-to-last, dc:source is last.
     Only checks instance definitions, not full ontology terms (which follow
@@ -1228,12 +1322,7 @@ def check_predicate_ordering(files: dict[str, bytes]) -> list[Finding]:
     # terminated by a line ending with ' .' (with possible whitespace).
     # Then check the order of memberOfOntology and dc:source.
     # We scan blocks one at a time.
-    block_pat = re.compile(
-        r"(?P<head>^(gemi:|<)[^\s]+\s+a\s+[^;]+;\s*\r?\n)"  # subject + first type line
-        r"(?P<body>(?:[ \t]+[^\r\n]+\r?\n)+)"
-        r"(?P<term>[ \t]+[^\r\n]+\s+\.\s*\r?\n)",
-        re.MULTILINE,
-    )
+    block_pat = _BLOCK_RE
 
     bad_blocks = []
     for m in block_pat.finditer(text):
@@ -3380,6 +3469,7 @@ KNOWN_V1_DATES: dict[str, tuple[str, Optional[str]]] = {
     "ncd210.4.1": ("2010-08-25", "2011-01-03"),
     "ncd220.1": ("1985-11-22", None),
     "ncd220.6.10": ("2005-01-28", "2005-04-18"),
+    "ncd220.6.13": ("2004-09-15", "2004-10-04"),
     "ncd220.6.14": ("2005-01-28", "2005-04-18"),
     "ncd220.6.15": ("2005-01-28", "2005-04-18"),
     "ncd220.6.20": ("2013-09-27", "2014-07-07"),
@@ -4340,6 +4430,7 @@ ALL_CHECKS = [
     ("uri_collision",      lambda files, graph, expected, handoff_text: check_uri_collisions(files, graph)),
     ("deleted_twin_collision", lambda files, graph, expected, handoff_text: check_deleted_twin_collision(files, graph)),
     ("predicate_order",    lambda files, graph, expected, handoff_text: check_predicate_ordering(files)),
+    ("block_terminator",   lambda files, graph, expected, handoff_text: check_block_terminator(files)),
     ("predicate_target_sort", lambda files, graph, expected, handoff_text: check_predicate_target_sort(files)),
     ("ruledescription_domain", lambda files, graph, expected, handoff_text: check_ruledescription_domain_conformance(files, graph)),
     ("inverse_note_conformance", lambda files, graph, expected, handoff_text: check_inverse_note_conformance(files, graph)),
@@ -5261,6 +5352,70 @@ def _variant_31_predicate_order_reversed() -> dict:
         b"    gem:prefLabel \"Foo\" ;\r\n"
         b"    dc:source gemi:bar ;\r\n"
         b"    gem:memberOfOntology gem:GEM .\r\n"
+    )
+    return {"files": {
+        "GEM_policy_instances.ttl": ttl,
+        "GEM_ontology.ttl": _SELF_TEST_ONTOLOGY_STUB.encode("utf-8"),
+    }}
+
+
+# --- block_terminator (V113-V115; S266) ---------------------------------------
+#
+# V115 is the regression test that matters: the malformed block must produce a
+# FINDING, and it must do so quickly. Before S266 this input hung
+# check_predicate_ordering for over 25 minutes.
+
+_BT_PREFIXES = (
+    b"@prefix gemi: <http://www.cms.hhs.gov/ontology/2026/07/GEM/instances/> .\r\n"
+    b"@prefix gem:  <http://www.cms.hhs.gov/ontology/2026/07/GEM/> .\r\n"
+    b"@prefix dc:   <http://purl.org/dc/elements/1.1/> .\r\n"
+    b"\r\n"
+)
+
+
+def _variant_113_block_terminator_baseline() -> dict:
+    """block_terminator GREEN: the terminator's ' .' carries its space."""
+    ttl = _BT_PREFIXES + (
+        b"gemi:ncdFoo a gem:NCDpolicy ;\r\n"
+        b"    gem:prefLabel \"Foo\" ;\r\n"
+        b"    gem:memberOfOntology gem:GEM ;\r\n"
+        b"    dc:source gemi:bar .\r\n"
+    )
+    return {"files": {
+        "GEM_policy_instances.ttl": ttl,
+        "GEM_ontology.ttl": _SELF_TEST_ONTOLOGY_STUB.encode("utf-8"),
+    }}
+
+
+def _variant_114_block_terminator_missing_space() -> dict:
+    """block_terminator: 'gemi:bar.' for 'gemi:bar .' -> YELLOW. Valid Turtle,
+    so nothing in the parse path notices."""
+    ttl = _BT_PREFIXES + (
+        b"gemi:ncdFoo a gem:NCDpolicy ;\r\n"
+        b"    gem:prefLabel \"Foo\" ;\r\n"
+        b"    gem:memberOfOntology gem:GEM ;\r\n"
+        b"    dc:source gemi:bar.\r\n"
+    )
+    return {"files": {
+        "GEM_policy_instances.ttl": ttl,
+        "GEM_ontology.ttl": _SELF_TEST_ONTOLOGY_STUB.encode("utf-8"),
+    }}
+
+
+def _variant_115_po_malformed_block_does_not_hang() -> dict:
+    """predicate_order against the S266 shape: a long, wide block whose
+    terminator is missing its space. The assertion is that the check RETURNS —
+    the pre-S266 pattern explored indent^lines combinations here and never did.
+    """
+    body = b"".join(
+        b"    gem:refersToClinicalConcept gemi:concept%d ;\r\n" % i for i in range(110)
+    )
+    ttl = _BT_PREFIXES + (
+        b"gemi:ncdFoo a gem:NCDpolicy ;\r\n"
+        b"    gem:description \"" + b"x " * 3000 + b"\" ;\r\n"
+        + body +
+        b"    gem:memberOfOntology gem:GEM ;\r\n"
+        b"    dc:source gemi:bar.\r\n"
     )
     return {"files": {
         "GEM_policy_instances.ttl": ttl,
@@ -7215,6 +7370,25 @@ _VARIANTS = [
         # carries category `predicate_ordering`. Pre-existing mismatch (S262).
         "predicate_order",
         _variant_112_po_dcsource_named_in_literal,
+        [],
+    ),
+    # --- block_terminator (V113-V115; S266) -------------------------------
+    (
+        "Variant 113 (block terminator ' .' spaced -> GREEN)",
+        "block_terminator",
+        _variant_113_block_terminator_baseline,
+        [],
+    ),
+    (
+        "Variant 114 (block terminator missing its space -> YELLOW)",
+        "block_terminator",
+        _variant_114_block_terminator_missing_space,
+        [("YELLOW", "block_terminator", "ncdFoo")],
+    ),
+    (
+        "Variant 115 (malformed 112-line block: predicate_order returns, does not hang)",
+        "predicate_order",
+        _variant_115_po_malformed_block_does_not_hang,
         [],
     ),
 ]
