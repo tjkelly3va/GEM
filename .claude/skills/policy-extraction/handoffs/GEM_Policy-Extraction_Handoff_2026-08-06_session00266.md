@@ -77,7 +77,7 @@ In the siblings' revision histories TN 106 carries its own dated entry. In this 
 
 Items 1–51 carry from S265 unless restated.
 
-1. **Cadence checkpoint — next at 200.** `policies_processed` is **181**; 19 out. Not due.
+1. **Cadence checkpoint — next at 200.** `policies_processed` is **181**; 19 out. Not due. **Agenda item queued (Tom, S266): the promoted-stub-in-place relocation, item 52.** It is deferred to the checkpoint rather than done inline because it is a file-layout question with no graph consequence, and because the checkpoint is where conventions are reviewed — which is the level the fix probably belongs at (see 52).
 2. **LCD/Article V1-date research — 18 candidates.** `policy_effective_date_v1` INFO = **24**, unchanged.
 3. **CIM stub source availability — 49**, unchanged.
 4. **Era-gate mistokens — retrospective sweep still pending Tom.** Not exercised in S266 (`tn24NCD` is 2004, post-crystallization).
@@ -90,7 +90,13 @@ Items 1–51 carry from S265 unless restated.
 50. **CLOSED (S265).**
 51. **CLOSED (S266) — by extracting its subject.** NCD 220.6.13 is in the graph.
 
-52. **NEW (S266) — `gemi:a55426` and `gemi:a58247` are extracted policies living inside another policy's stub section.** Each was minted as a stub and later fully extracted **in place**, so each sits under an enclosing `POLICY STUBS (cited by …, not yet extracted)` sub-banner its own content contradicts: A55426 under L33797's, A58247 under A55426's. **This is the S147 shape** — a block contradicting its header — not a missing banner, and inserting a `# POLICY:` banner would leave the false enclosing header standing. The fix is relocation to top-level sections, which moves large regions of the file, so it was deliberately not folded into S266's banner pass. Tom is aware; needs a decision on whether to relocate.
+52. **NEW (S266), DEFERRED to the 200-policy cadence checkpoint (Tom) — promoted stubs left in place.** `gemi:a55426` was minted as a stub by L33797 and later fully extracted **in place**, so it sits under an enclosing `POLICY STUBS (cited by L33797, not yet extracted)` sub-banner its own content contradicts — the S147 shape, a block contradicting its header. `gemi:a58247` is a *different* misfiling: it sits under `# POLICY RULE INDIVIDUALS (A55426)`, which is wrong but asserts nothing false about extraction status.
+
+    **Scope, measured:** of **72** `POLICY STUBS` banners in the file, exactly **one** has a `planDone` individual beneath it. The first framing of this item said "two blocks" and "moves large regions of the file"; both were overstatements, corrected here.
+
+    **Nothing reads banners but a person.** Both individuals are `planDone` with complete triple sets, every query and check reads the graph, and the audit is GREEN either way. There is no urgency and no correctness cost.
+
+    **Prefer the wording fix over relocation.** The banner says *"not yet extracted"* — a **workflow-state claim**, and workflow state is a graph property (`gem:nextPlannedStep`). SKILL.md §File Layout Conventions' own banner discipline says provenance does not belong in banners (corollary 1) and that every banner item must be recoverable from the graph (corollary 3). By the convention's own rules the **wording** is the defect, in all 72 banners — and it will keep producing this drift every time a stub is promoted in place, which is a normal and correct thing to do. Rewording is mechanical and cannot disturb a triple; relocating one block fixes one instance of a recurring class. **Do not default to relocating at S267.**
 53. **NEW (S266) — no audit check covers banner presence.** The whole class survived 100+ sessions and every GREEN close because nothing looks. A `banner_presence` check keyed on planDone policies would be cheap and would have caught all 23. Note the trap the same session demonstrated three times: such a check must read planDone **from the graph**, and must tolerate all three era-forms (`# POLICY: X --`, `# X --`, `# === POLICY: X --`) or normalise them first.
 
 ## §5 — Plan for S267
