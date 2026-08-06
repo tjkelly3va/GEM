@@ -26,7 +26,7 @@ Hashes are md5 over the frozen output set; **M** marks a file changed this sessi
 
 **One extraction and three repairs, two of which the extraction itself uncovered.** NCD 220.6.13 is the fifth FDG PET sibling and **the first one that kept its content** — 18 rules against the four siblings' 4 between them. Writing it to the documented file layout exposed a long-running banner drift; running the audit over it exposed a latent catastrophic-backtracking hang; and diagnosing that exposed an emitter bug of my own. No schema change (`GEM_ontology.ttl` byte-identical).
 
-**Graph movement:** `policies_processed` **180 → 181**. Instances triples **53,792 → 54,331** (+539). Workflow `planDone` **180 → 181**, `planPromote` **759 → 763**, `planNone` **16** unchanged. NCD census **Active 140 → 141**, Stubs 6 → 7, Retired 18, Deleted 5, Unknown 0, **Total 169 → 171**. Clinical concepts **2,957 → 2,998**; policy rules **1,977 → 1,995**; provider credentials **127 → 138**; healthcare settings **26** unchanged. `referencesPolicy` **1243 → 1254**, `revisesPolicy` **279 → 283**, `revisedByPolicy` **0** (invariant). `referencesChangeRequest` **142**. Both INFO queues unchanged: `source_availability_unverified` **49**, `policy_effective_date_v1` **24**.
+**Graph movement:** `policies_processed` **180 → 181**. Instances triples **53,792 → 54,331** (+539). Workflow `planDone` **180 → 181**, `planPromote` **759 → 763**, `planNone` **16** unchanged. NCD census **Active 140 → 141**, Stubs **6** (unchanged), Retired 18, Deleted 5, Unknown 0, **Total 169 → 170**. The four new stubs are a transmittal, two NCAs and a change request — **none is a gem:NCDpolicy**, so the census Stubs bucket does not move. Clinical concepts **2,957 → 2,998**; policy rules **1,977 → 1,995**; provider credentials **127 → 138**; healthcare settings **26** unchanged. `referencesPolicy` **1243 → 1254**, `revisesPolicy` **279 → 283**, `revisedByPolicy` **0** (invariant). `referencesChangeRequest` **142**. Both INFO queues unchanged: `source_availability_unverified` **49**, `policy_effective_date_v1` **24**.
 
 **`sources/` held still for the first time in six sessions** — no new PDFs arrived mid-session or during the close.
 
@@ -97,7 +97,7 @@ Items 1–51 carry from S265 unless restated.
 
 ### §5.1 — Bootstrap (auto-authorized)
 
-From the canonical directory, read the latest handoff in `handoffs/`, then run `python gem_audit.py --files-dir . --autofix` immediately, without asking. Expect a clean run with **no autofix write**, two INFO (`source_availability_unverified` **49**; `policy_effective_date_v1` **24**), plus **`[NCD CENSUS]`** (Active 141 · Stubs 7 · Retired 18 · Deleted 5 · Unknown 0 · Total 171). Any RED is a halt; surface YELLOW for decision.
+From the canonical directory, read the latest handoff in `handoffs/`, then run `python gem_audit.py --files-dir . --autofix` immediately, without asking. Expect a clean run with **no autofix write**, two INFO (`source_availability_unverified` **49**; `policy_effective_date_v1` **24**), plus **`[NCD CENSUS]`** (Active 141 · Stubs 6 · Retired 18 · Deleted 5 · Unknown 0 · Total 170). Any RED is a halt; surface YELLOW for decision.
 
 **Mid-session `hash_verify` RED is normal** — it means canonical files have been edited since the previous handoff's §1 table was computed. The halt rule is about RED at **bootstrap**.
 
