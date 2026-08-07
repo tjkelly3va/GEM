@@ -117,9 +117,11 @@ From the canonical directory, read the latest handoff in `handoffs/`, then run `
 
 **Re-measure `sources/` against the graph before planning** (§4 item 45), with a regex that tolerates **all three** filename forms (§4 item 54), **printing the parsed-section and unparsed counts**, and reading planDone **from the graph**.
 
-**The FDG PET family is now complete except `NCD 220.6.17`** — the section that replaced four of the siblings, cited by all of them, and the last high-value promote target in the family. `NCD 220.6.13` is the one sibling it did not replace.
+**MEASURED AT THE S267 CLOSE (Tom's instruction): there is no NCD left in `sources/` to extract.** All **159** NCD sections present have a `planDone` individual — zero without. The 73 non-NCD-named files are Articles, LCDs, NCAs, PMs, transmittal renditions, a manual chapter and one framework document; none is an NCD under another name. **Every remaining NCD target below needs a rendition from Tom before it can be planned** — do not open a Plan turn on any of them until the PDF is in `sources/`, and **check `sources/` before suggesting an NCD** (Tom, S267). The check is a filename-to-graph cross-reference, not a guess: match `^NCD\s+<section>` over `sources/*.pdf` tolerating all three filename forms (§4 item 54), then test each section against planDone read from the **graph**.
 
-Then the five stubs needing renditions from Tom:
+**The FDG PET family is complete except `NCD 220.6.17`** — the section that replaced four of the siblings, cited by all of them, and the highest-value promote target in the family. `NCD 220.6.13` is the one sibling it did not replace. **It is not in `sources/`.**
+
+The promote targets, all seven awaiting renditions from Tom:
 
 | Policy | Note |
 | :--- | :--- |
@@ -128,8 +130,10 @@ Then the five stubs needing renditions from Tom:
 | **NCD 280.13** | TENS - RETIRED; counted under **Retired**, not **Stubs** |
 | **NCD 80.7** | Cited by NCD 80.8 for excluded refractive procedures |
 | **NCD 10.1** | Cited by NCD 80.8's bundling rule |
+| **NCD 220.6.17** | Replaced four of the FDG PET siblings; cited by all of them |
+| **NCD 220.12** | SPECT; newly cited and newly stubbed at S267 (§4 item 55) |
 
-`NCD 220.12` (SPECT) is newly cited and newly stubbed — a candidate if Tom has the rendition (§4 item 55).
+**If no rendition is forthcoming, the NCD phase is blocked and §5.2a is the work** — that is not a reason to relax the standing priority, which is about ordering, not about inventing sources. `sources/` also holds **47 non-NCD documents that are not yet `planDone`** (2 LCDs, 1 Article, 12 NCA renditions, 1 PM and 31 transmittals, including `R44NCD`, `R61NCD`, `R70NCD`, `R78NCD`, `R96NCD`) — the deferred non-NCD phase, available immediately if Tom redirects, but **not** to be started on my own initiative.
 
 ### §5.2a — After the NCDs
 
