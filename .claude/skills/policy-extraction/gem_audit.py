@@ -740,7 +740,7 @@ def check_uri_scheme_consistency(
 # --- S149: transmittal manual token, NCA URI derivation, doc URI examples -----
 
 MANUAL_TOKEN_PUB = {"CIM": "6", "BP": "100-02", "NCD": "100-03", "CP": "100-04", "OTN": "100-20", "MHM": "10", "HHA": "11", "MIM": "13", "MCM": "14"}
-CIM_MAX_TN = 169   # the Coverage Issues Manual ran TN 1-169, ending early 2003 (R169CIM verified by Tom, S247 -- the 04/2003 crystallization-boundary transmittal; prior ceiling 168 per S177, 167 before that)
+CIM_MAX_TN = 174   # the Coverage Issues Manual ran TN 1-174 (R172CIM, R173CIM and R174CIM located by Tom, S267; R175CIM searched for and NOT found, so 174 is the first ceiling bounded from ABOVE rather than only pushed from below). Raised twice in S267: 169 -> 171 on R171CIM (NCD 220.6 Version 2 publishes the link itself, effective 10/01/2003), then 171 -> 174 minutes later. Ratchet history: 167, 168 per S177, 169 per S247 (R169CIM, the 04/2003 crystallization-boundary transmittal), 171 and 174 per S267. Five raises, every one driven by a rendition arriving rather than by reasoning -- treat this number as an empirical high-water mark, not a documented fact, and resolve a CIM-token RED only on a rendition. The date half of the era gate stays advisory: 172-174 are undated here
 
 
 def check_transmittal_manual_token(
@@ -3468,6 +3468,7 @@ KNOWN_V1_DATES: dict[str, tuple[str, Optional[str]]] = {
     "ncd210.2": ("2001-07-01", None),
     "ncd210.4.1": ("2010-08-25", "2011-01-03"),
     "ncd220.1": ("1985-11-22", None),
+    "ncd220.6": ("2002-10-01", "2002-10-01"),
     "ncd220.6.10": ("2005-01-28", "2005-04-18"),
     "ncd220.6.13": ("2004-09-15", "2004-10-04"),
     "ncd220.6.14": ("2005-01-28", "2005-04-18"),
